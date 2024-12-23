@@ -1,4 +1,7 @@
 {
-  "name": "assignment",
-  "packageManager": "yarn@4.5.3"
+  "name": "kleros-assignment",
+  "packageManager": "yarn@4.5.3",
+  "workspaces": [
+    "packages/*"
+  ]
 }
