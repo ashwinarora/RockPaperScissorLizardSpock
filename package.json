@@ -1,6 +1,9 @@
 {
   "name": "kleros-assignment",
   "packageManager": "yarn@4.5.3",
+  "scripts": {
+    "client:dev": "yarn workspace @kleros-assignment/client dev"
+  },
   "workspaces": [
     "packages/*"
   ]

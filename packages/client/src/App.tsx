@@ -9,7 +9,7 @@ function App() {
   return (
     <>
       <div>
-        <h2>Account</h2>
+        <h2 className='text-8xl'>Account</h2>
 
         <div>
           status: {account.status}
