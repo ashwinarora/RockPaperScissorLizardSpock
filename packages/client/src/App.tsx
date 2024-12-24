@@ -9,18 +9,25 @@ const App = () => {
 
   useEffect(() => {
     const onConnect = () => {
+      console.log("connected");
       setIsConnected(true);
     }
     const onDisconnect = () => {
       setIsConnected(false);
     }
+    const onHello = (data: any) => {
+      console.log('hello', data);
+    }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('hello', onHello);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('hello', onHello);
+
     }
   }, [])
 
