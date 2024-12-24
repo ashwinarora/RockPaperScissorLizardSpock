@@ -10,40 +10,46 @@ export type gameJ1 = {
 
 type gameState2 = {
   isThisJ1: false,
-  status: "something"
+  status: "j1Ready"
 }
 
 export type gameState = gameJ1 | gameState2;
 
 const App = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isThisJ1, setIsThisJ1] = useState(true);
-  const [game, setGame] = useState<gameState>({ isThisJ1: true, status: "init" });
+  // const [isConnected, setIsConnected] = useState(false);
+  const [game, setGame] = useState<gameState>();
   const [j2Address, setJ2Address] = useState("0xE825A421ecB2AaD71215773F4f4b753FaCbfbd07");
-
-  console.log("isConnected", isConnected);
 
   useEffect(() => {
     const onConnect = () => {
       console.log("connected");
-      setIsConnected(true);
+      socket.emit('statusRequest');
     }
+    
     const onDisconnect = () => {
-      setIsConnected(false);
+      console.log("disconnected");
     }
-    const onHello = (data: any) => {
-      console.log('hello', data);
+
+    const handleIncomingStatus = (status) => {
+      console.log(status)
+      if(status.status === "waiting") {
+        setGame({ isThisJ1: true, status: "init" });
+      }
+      if(status.status === "j1Ready") {
+        setGame({
+          isThisJ1: false,
+          status: "j1Ready"
+        })
+      }
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    socket.on('hello', onHello);
+    socket.on('gameStatus', handleIncomingStatus);
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      socket.off('hello', onHello);
-
     }
   }, [])
 
@@ -51,7 +57,10 @@ const App = () => {
     <div>
       <Topbar />
       {
-        game.isThisJ1 && <NewGame j2Address={j2Address} game={game} />
+        game && game.isThisJ1 && <NewGame j2Address={j2Address} game={game} setGame={setGame} />
+      }
+      {
+        game && !game.isThisJ1 && <div className="">Game is ready</div>
       }
     </div>
   )

@@ -17,12 +17,36 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientDistPath = join(__dirname, "../../client/dist");
 app.use(express.static(clientDistPath));
 
+type player = {
+
+}
+
+type gameStatus = 'waiting' | 'j1Ready'
+
+let status: gameStatus= 'waiting'
+
+let j1: player = {}
+let j2: player = {}
+
 io.on('connection', (socket) => {
   console.log('a user connected');
-  socket.emit('hello', 'world');
   
-  socket.on("j1ready", (data) => {
-    console.log("j1ready", data);
+  socket.on("statusRequest", () => {
+    socket.emit("gameStatus", {
+      status: status,
+      j1: j1,
+    })
+  })
+
+  socket.on("j1Ready", (data) => {
+    console.log("j1Ready", data);
+    status = 'j1Ready'
+    j1 = {...data}
+    console.log(j1)
+    socket.broadcast.emit("gameStatus", {
+      status: status,
+      j1: j1,
+    });
   })
 });
 
