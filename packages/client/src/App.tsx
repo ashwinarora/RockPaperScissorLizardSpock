@@ -1,9 +1,25 @@
 import { useEffect, useState } from "react";
 import Topbar from "./components/Topbar"
 import { socket } from './socket';
+import NewGame from "./components/NewGame";
+
+export type gameJ1 = {
+  isThisJ1: true,
+  status: "init" | "j2waiting" | "j2joined" 
+}
+
+type gameState2 = {
+  isThisJ1: false,
+  status: "something"
+}
+
+export type gameState = gameJ1 | gameState2;
 
 const App = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const [isThisJ1, setIsThisJ1] = useState(true);
+  const [game, setGame] = useState<gameState>({ isThisJ1: true, status: "init" });
+  const [j2Address, setJ2Address] = useState("0xE825A421ecB2AaD71215773F4f4b753FaCbfbd07");
 
   console.log("isConnected", isConnected);
 
@@ -34,6 +50,9 @@ const App = () => {
   return (
     <div>
       <Topbar />
+      {
+        game.isThisJ1 && <NewGame j2Address={j2Address} game={game} />
+      }
     </div>
   )
 }
