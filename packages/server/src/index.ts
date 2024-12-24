@@ -12,7 +12,9 @@ const io = new Server(httpServer, {
   },
 });
 
-// const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const clientDistPath = join(__dirname, "../../client/dist");
+app.use(express.static(clientDistPath));
 
 io.on('connection', (socket) => {
   console.log('a user connected');

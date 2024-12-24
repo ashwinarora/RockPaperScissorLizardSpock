@@ -3,7 +3,11 @@
   "packageManager": "yarn@4.5.3",
   "scripts": {
     "client:dev": "yarn workspace @kleros-assignment/client dev",
-    "server:dev": "yarn workspace @kleros-assignment/server dev"
+    "client:build": "yarn workspace @kleros-assignment/client build",
+    "server:dev": "yarn workspace @kleros-assignment/server dev",
+    "server:start": "yarn workspace @kleros-assignment/server start",
+    "server:build": "yarn workspace @kleros-assignment/server build",
+    "start": "yarn client:build && yarn server:build && yarn server:start"
   },
   "workspaces": [
     "packages/*"
