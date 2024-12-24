@@ -2,11 +2,10 @@ import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { toHumanNumber } from "./utils";
 
 const Topbar = () => {
-  const { address, isConnected, chainId, chain } = useAccount();
+  const { address, isConnected, chain } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const balanceData = useBalance({ address });
-  console.log(chain)
 
   return (
     <div className="flex justify-between border-b border-gray-300 p-4">

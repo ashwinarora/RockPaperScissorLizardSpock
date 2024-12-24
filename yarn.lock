@@ -1179,6 +1179,7 @@ __metadata:
     postcss: "npm:^8.4.49"
     react: "npm:^18.3.1"
     react-dom: "npm:^18.3.1"
+    socket.io-client: "npm:^4.8.1"
     tailwindcss: "npm:^3.4.17"
     typescript: "npm:^5.4.5"
     viem: "npm:latest"
@@ -1193,6 +1194,20 @@ __metadata:
   dependencies:
     "@nomicfoundation/hardhat-toolbox-viem": "npm:^3.0.0"
     hardhat: "npm:^2.22.17"
+  languageName: unknown
+  linkType: soft
+
+"@kleros-assignment/server@workspace:packages/server":
+  version: 0.0.0-use.local
+  resolution: "@kleros-assignment/server@workspace:packages/server"
+  dependencies:
+    "@types/express": "npm:^5.0.0"
+    "@types/node": "npm:^22.10.2"
+    "@types/socket.io": "npm:^3.0.2"
+    express: "npm:^4.21.2"
+    socket.io: "npm:^4.8.1"
+    tsx: "npm:^4.19.2"
+    typescript: "npm:^5.7.2"
   languageName: unknown
   linkType: soft
 
@@ -7816,20 +7831,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"server@workspace:packages/server":
-  version: 0.0.0-use.local
-  resolution: "server@workspace:packages/server"
-  dependencies:
-    "@types/express": "npm:^5.0.0"
-    "@types/node": "npm:^22.10.2"
-    "@types/socket.io": "npm:^3.0.2"
-    express: "npm:^4.21.2"
-    socket.io: "npm:^4.8.1"
-    tsx: "npm:^4.19.2"
-    typescript: "npm:^5.7.2"
-  languageName: unknown
-  linkType: soft
-
 "set-blocking@npm:^2.0.0":
   version: 2.0.0
   resolution: "set-blocking@npm:2.0.0"
@@ -7965,7 +7966,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:^4.5.1":
+"socket.io-client@npm:^4.5.1, socket.io-client@npm:^4.8.1":
   version: 4.8.1
   resolution: "socket.io-client@npm:4.8.1"
   dependencies:
