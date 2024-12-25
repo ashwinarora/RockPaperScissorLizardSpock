@@ -4,6 +4,8 @@ export const MOVES = ["Rock", "Paper", "Scissors", "Lizard", "Spock"] as const;
 
 export type Move = (typeof MOVES)[number];
 
+export type HexString = `0x${string}`;
+
 export const toHumanNumber = (
   value: bigint,
   decimals: number = 18,
@@ -32,8 +34,12 @@ export const toRealNumber = (value: string, decimals: number = 18): bigint => {
   );
 };
 
+export const getMoveNumber = (move: Move): number => {
+  return MOVES.indexOf(move) + 1;
+}
+
 export const getHash = (move: Move, salt: bigint) => {
-  const indexOfMove = MOVES.indexOf(move) + 1;
+  const indexOfMove = getMoveNumber(move);
   const packedData = encodePacked(["uint8", "uint256"], [indexOfMove, salt]);
   const hash = keccak256(packedData);
   return hash;

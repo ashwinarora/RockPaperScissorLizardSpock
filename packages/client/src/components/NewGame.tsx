@@ -1,24 +1,38 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import MakeMove from "./MakeMove";
-import { getHash, getRandomSalt, Move, toRealNumber } from "./utils";
-import { useAccount } from "wagmi";
+import { getHash, getRandomSalt, HexString, Move, toRealNumber } from "./utils";
+import { useAccount, useWaitForTransactionReceipt, usePublicClient } from "wagmi";
 import TxButton from "./TxButton";
 import RPSLS from "../../../contracts/artifacts/contracts/RPS.sol/RPS.json";
 import { useDeployContract } from "wagmi";
 import { gameJ1 } from "../App";
 
 interface INewGameProps {
-  j2Address: string;
   game: gameJ1;
   setGame: (game: gameJ1) => void;
 }
 
-const NewGame = ({ j2Address, game, setGame }: INewGameProps) => {
+const NewGame = ({ game, setGame }: INewGameProps) => {
   const { address, chain } = useAccount();
   const { deployContractAsync } = useDeployContract();
   const [move, setMove] = useState<Move | null>(null);
   const [stake, setStake] = useState("");
+  const [txHash, setTxHash] = useState<HexString>();
+  const publicClient = usePublicClient();
+  const { data: depoyTxData } = useWaitForTransactionReceipt({
+    hash: txHash,
+  })
+
+  useEffect(() => {
+    if(!depoyTxData) return;
+    if(!depoyTxData.contractAddress) return;
+    if(game.status !== "j2joined") return;
+    setGame({ ...game, status: "contractDeployed", contractAddress: depoyTxData.contractAddress });
+    socket.emit("contractDeployed", {
+      contractAddress: depoyTxData.contractAddress,
+    })
+  }, [depoyTxData])
 
   return (
     <div className="w-full mt-4 text-3xl flex flex-col items-center justify-center">
@@ -32,17 +46,16 @@ const NewGame = ({ j2Address, game, setGame }: INewGameProps) => {
           placeholder="Enter Stake"
           className="border border-gray-300 bg-slate-800 p-1 rounded disabled:cursor-not-allowed disabled:text-gray-300"
         />
+        {stake && (
+          <p className="mt-4">
+            Stake: {stake} {chain?.nativeCurrency.symbol}
+          </p>
+        )}
         {game.status === "init" && (
           <div className="w-full">
-            {stake && (
-              <p className="mt-4">
-                Stake: {stake} {chain?.nativeCurrency.symbol}
-              </p>
-            )}
             <button
               disabled={!stake.length}
               onClick={() => {
-                console.log("emiting");
                 socket.emit("j1Ready", {
                   socketId: socket.id,
                   stake: stake,
@@ -51,11 +64,7 @@ const NewGame = ({ j2Address, game, setGame }: INewGameProps) => {
                 });
                 setGame({ ...game, status: "j2waiting" });
               }}
-              className={`p-3 w-full rounded ${
-                stake.length
-                  ? "bg-blue-500 hover:bg-blue-700 text-white"
-                  : "bg-gray-500 text-gray-300 cursor-not-allowed"
-              }`}
+              className="p-3 w-full rounded bg-blue-500 hover:bg-blue-700 text-white disabled:bg-gray-500 disabled:text-gray-300 disabled:cursor-not-allowed"
             >
               Ready
             </button>
@@ -83,14 +92,17 @@ const NewGame = ({ j2Address, game, setGame }: INewGameProps) => {
                 const hash = getHash(move, salt);
                 console.log("depoying");
                 try {
-                  const result = await deployContractAsync({
+                  const txHash = await deployContractAsync({
                     abi: RPSLS.abi,
-                    bytecode: RPSLS.bytecode as `0x${string}`,
-                    args: [hash, j2Address],
+                    bytecode: RPSLS.bytecode as HexString,
+                    args: [hash, game.j2Address],
                     value: realStake,
                     account: address,
                   });
-                  console.log(result);
+                  console.log(txHash);
+                  setTxHash(txHash);
+                  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+                  console.log(receipt);
                 } catch (error) {
                   console.error("Error deploying contract:", error);
                 }
