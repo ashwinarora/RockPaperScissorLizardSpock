@@ -34,6 +34,13 @@ let gameContract: string = ""
 let j1: player = {}
 let j2: player = {}
 
+const cleanup = () => {
+  status = 'waiting'
+  j1 = {}
+  j2 = {}
+  gameContract = ""
+}
+
 io.on('connection', (socket) => {
   console.log('a user connected');
   
@@ -72,6 +79,11 @@ io.on('connection', (socket) => {
     socket.to(j2.socketId).emit("j1Deployed", {
       contractAddress: data.contractAddress,
     });
+  })
+
+  socket.on("j1Claimed", () => {
+    socket.to(j2.socketId ?? "").emit("j1Claimed")
+    cleanup()
   })
 
 });

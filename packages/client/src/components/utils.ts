@@ -55,3 +55,9 @@ export const getRandomSalt = (): bigint => {
   // Ensure it's within bounds (this is unlikely to exceed bounds)
   return randomBigInt <= maxUint256 ? randomBigInt : getRandomSalt();
 }
+
+export const getTimeoutString = (timeout: number) => {
+  const minutes = Math.floor(timeout / 60);
+  const seconds = timeout % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+}

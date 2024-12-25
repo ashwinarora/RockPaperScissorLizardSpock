@@ -6,7 +6,7 @@ import JoinGame from "./components/JoinGame";
 
 export type gameJ1 = {
   isThisJ1: true,
-  status: "init" | "j2waiting" | "j2joined" | "contractDeployed",
+  status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed",
   j2Address?: string,
   contractAddress?: string,
 }
