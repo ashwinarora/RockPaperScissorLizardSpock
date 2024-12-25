@@ -8,7 +8,7 @@
     "server:dev": "yarn workspace @kleros-assignment/server dev",
     "server:start": "yarn workspace @kleros-assignment/server start",
     "server:build": "yarn workspace @kleros-assignment/server build",
-    "start": "yarn client:build && yarn server:build && yarn server:start"
+    "start": "yarn compileContracts && client:build && yarn server:build && yarn server:start"
   },
   "workspaces": [
     "packages/*"
