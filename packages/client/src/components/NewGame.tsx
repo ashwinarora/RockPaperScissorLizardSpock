@@ -1,14 +1,28 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { socket } from "../socket";
 import MakeMove from "./MakeMove";
-import { getHash, getRandomSalt, getTimeoutString, HexString, Move, toRealNumber } from "./utils";
-import { useAccount, useWaitForTransactionReceipt, usePublicClient, useReadContracts } from "wagmi";
+import {
+  getHash,
+  getMoveNumber,
+  getRandomSalt,
+  getWinner,
+  HexString,
+  Move,
+  toRealNumber,
+} from "./utils";
+import {
+  useAccount,
+} from "wagmi";
 import TxButton from "./TxButton";
 import RPSLS from "../../../contracts/artifacts/contracts/RPS.sol/RPS.json";
 import { useDeployContract } from "wagmi";
 import { gameJ1 } from "../App";
 import Timeout from "./Timeout";
 import { useWriteContract } from "wagmi";
+import { useReadContract } from "wagmi";
+import { waitForTransactionReceipt } from "wagmi/actions";
+import { config } from "../wagmi";
+import useTimer from "./useTimer";
 
 interface INewGameProps {
   game: gameJ1;
@@ -22,36 +36,21 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
   const [stake, setStake] = useState("");
   const [txHash, setTxHash] = useState<HexString>();
   const [timeover, setTimeover] = useState(false);
-  const publicClient = usePublicClient();
   const { writeContractAsync } = useWriteContract();
-  const { data: depoyTxData } = useWaitForTransactionReceipt({
-    hash: txHash,
+  const salt = useMemo(() => getRandomSalt(), []);
+  const { gameLastAction, gameTimeout } = useTimer(game.contractAddress);
+  
+  const { data: j2Move, refetch: fetchJ2Move } = useReadContract({
+    abi: RPSLS.abi,
+    address: game.contractAddress as HexString,
+    functionName: "c2"
   })
-  const { data: contractData }  = useReadContracts({
-    contracts: [{
-      abi: RPSLS.abi,
-      address: game.contractAddress as HexString,
-      functionName: "TIMEOUT"
-    }, {
-      abi: RPSLS.abi,
-      address: game.contractAddress as HexString,
-      functionName: "lastAction"
-    }]
-  })
-
-  const [gameTimeout, gameLastAction] = contractData || [];
-
-  console.log(gameLastAction)
 
   useEffect(() => {
-    if(!depoyTxData) return;
-    if(!depoyTxData.contractAddress) return;
-    if(game.status !== "j2joined") return;
-    setGame({ ...game, status: "contractDeployed", contractAddress: depoyTxData.contractAddress });
-    socket.emit("contractDeployed", {
-      contractAddress: depoyTxData.contractAddress,
-    })
-  }, [depoyTxData])
+    if(game.status === "j2Played") {
+      fetchJ2Move();
+    }
+  }, [game])
 
   return (
     <div className="w-full mt-4 text-3xl flex flex-col items-center justify-center">
@@ -95,9 +94,7 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
             <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
           </div>
         )}
-        {
-          <div>{move && <p className="mt-4">You selected: {move}</p>}</div>
-        }
+        {<div>{move && <p className="mt-4">You selected: {move}</p>}</div>}
         {game.status === "j2joined" && (
           <div>
             <MakeMove move={move} setMove={setMove} />
@@ -109,19 +106,28 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
                   stake,
                   chain?.nativeCurrency.decimals,
                 );
-                const salt = getRandomSalt();
                 const hash = getHash(move, salt);
                 try {
-                  const txHash = await deployContractAsync({
+                  const deployTxHash = await deployContractAsync({
                     abi: RPSLS.abi,
                     bytecode: RPSLS.bytecode as HexString,
                     args: [hash, game.j2Address],
                     value: realStake,
                     account: address,
                   });
-                  console.log("Deploy Tx",txHash);
+                  const receipt = await waitForTransactionReceipt(config, {
+                    hash: deployTxHash,
+                  });
+                  setGame({
+                    ...game,
+                    status: "contractDeployed",
+                    contractAddress: receipt.contractAddress ?? "",
+                  });
+                  socket.emit("contractDeployed", {
+                    contractAddress: receipt.contractAddress,
+                  });
+                  console.log("Deploy Tx", txHash);
                   setTxHash(txHash);
-                  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
                 } catch (error) {
                   console.error("Error deploying contract:", error);
                 }
@@ -131,41 +137,94 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
             </TxButton>
           </div>
         )}
+        {game.status === "contractDeployed" && (
+          <div>
+            <p>Game started! Contract deployed at: {game.contractAddress}</p>
+            <div className="flex flex-row gap-x-4 my-4 items-center justify-start">
+              <p>Waiting for J2 to play</p>
+              <div className=" border-4 border-blue-300  rounded-full w-7 h-7  border-t-white animate-spin"></div>
+            </div>
+            {gameTimeout && gameLastAction && (
+              <Timeout
+                timeout={gameTimeout?.result as bigint}
+                lastAction={gameLastAction.result as bigint}
+                setTimeover={setTimeover}
+              />
+            )}
+            {timeover && (
+              <TxButton
+                asyncTask={async () => {
+                  await writeContractAsync({
+                    abi: RPSLS.abi,
+                    address: game.contractAddress as HexString,
+                    functionName: "j2Timeout",
+                  });
+                  setGame({ ...game, status: "j1Claimed" });
+                }}
+              >
+                Claim Your Stake
+              </TxButton>
+            )}
+          </div>
+        )}
+        {game.status === "j1Claimed" && (
+          <div className="italic">
+            <p>Game over! J2 timed out. You claimed your stake.</p>
+          </div>
+        )}
+        {game.status === "j2Played" && (
+          <div className="w-full">
+            <p>J2 has Played!</p>
+            <TxButton
+              asyncTask={async () => {
+                console.log(j2Move);
+                const solveTxHash = await writeContractAsync({
+                  abi: RPSLS.abi,
+                  address: game.contractAddress as HexString,
+                  functionName: "solve",
+                  args: [getMoveNumber(move), salt],
+                });
+                const j1MoveNumber = getMoveNumber(move);
+                const j2MoveNumber = Number(j2Move);
+                console.log(j1MoveNumber, j2MoveNumber);
+                const winner = getWinner(j1MoveNumber, j2MoveNumber);
+                const recepit = await waitForTransactionReceipt(config, {
+                  hash: solveTxHash,
+                });
+                if(recepit.status === "success") {
+                  socket.emit("game-over", {
+                    solveTxHash: recepit.transactionHash,
+                    winner: winner,
+                  })
+                  setGame({
+                    ...game,
+                    status: winner === "draw" ? "draw" : winner === "j1" ? "j1Won" : "j2Won"
+                  })
+                }
+              }}
+            >
+              Solve Game
+            </TxButton>
+          </div>
+        )}
         {
-          game.status === "contractDeployed" && (
-            <div>
-              <p>Game started! Contract deployed at: {game.contractAddress}</p>
-              <div className="flex flex-row gap-x-4 my-4 items-center justify-start">
-                <p>Waiting for J2 to play</p>
-                <div className=" border-4 border-blue-300  rounded-full w-7 h-7  border-t-white animate-spin"></div>
-              </div>
-                {
-                  gameTimeout && gameLastAction && 
-                  <Timeout timeout={gameTimeout?.result as bigint} lastAction={gameLastAction.result as bigint} setTimeover={setTimeover} />
-                }
-                {
-                  timeover && 
-                  <TxButton
-                    asyncTask={async () => {
-                      await writeContractAsync({
-                        abi: RPSLS.abi,
-                        address: game.contractAddress as HexString,
-                        functionName: "j2Timeout",
-                      });
-                      setGame({ ...game, status: "j1Claimed" });
-                      socket.emit("j1Claimed")
-                    }}
-                  >
-                    Claim Your Stake
-                  </TxButton>
-                }
+          game.status === "draw" && (
+            <div className="italic">
+              <p>Game Over! It's a draw!</p>
             </div>
           )
         }
         {
-          game.status === "j1Claimed" && (
+          game.status === "j1Won" && (
             <div className="italic">
-              <p>Game over! J2 timed out. You claimed your stake.</p>
+              <p>Game Over! You won!</p>
+            </div>
+          )
+        }
+        {
+          game.status === "j2Won" && (
+            <div className="italic">
+              <p>Game Over! J2 won!</p>
             </div>
           )
         }

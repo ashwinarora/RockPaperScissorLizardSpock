@@ -1,6 +1,6 @@
 import { encodePacked, keccak256 } from "viem";
 
-export const MOVES = ["Rock", "Paper", "Scissors", "Lizard", "Spock"] as const;
+export const MOVES = ["Rock", "Paper", "Scissors", "Spock", "Lizard"] as const;
 
 export type Move = (typeof MOVES)[number];
 
@@ -34,7 +34,8 @@ export const toRealNumber = (value: string, decimals: number = 18): bigint => {
   );
 };
 
-export const getMoveNumber = (move: Move): number => {
+export const getMoveNumber = (move: Move | null): number => {
+  if(move === null) return 0;
   return MOVES.indexOf(move) + 1;
 }
 
@@ -56,8 +57,12 @@ export const getRandomSalt = (): bigint => {
   return randomBigInt <= maxUint256 ? randomBigInt : getRandomSalt();
 }
 
-export const getTimeoutString = (timeout: number) => {
-  const minutes = Math.floor(timeout / 60);
-  const seconds = timeout % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+export const getWinner = (_c1: number, _c2: number): "j1" | "j2" | "draw" => {
+  if (_c1 === _c2) {
+      return "draw";
+  } else if (_c1 % 2 === _c2 % 2) {
+      return _c1 < _c2 ? "j1" : "j2";
+  } else {
+      return _c1 > _c2 ? "j1" : "j2";
+  }
 }

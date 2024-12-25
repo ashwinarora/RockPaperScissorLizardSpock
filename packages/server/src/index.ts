@@ -28,13 +28,14 @@ type player = {
 
 type gameStatus = 'waiting' | 'j1Ready' | 'j2Ready'
 
-let status: gameStatus= 'waiting'
+let status: gameStatus= 'waiting' 
 let gameContract: string = ""
 
 let j1: player = {}
 let j2: player = {}
 
 const cleanup = () => {
+  console.log("cleaning up server") 
   status = 'waiting'
   j1 = {}
   j2 = {}
@@ -46,6 +47,14 @@ io.on('connection', (socket) => {
   
   socket.on("statusRequest", () => {
     socket.emit("gameStatus", {
+      status: status,
+      j1: j1,
+    })
+  })
+
+  socket.on("cleanupServer", () => {
+    cleanup()
+    io.emit("gameStatus", {
       status: status,
       j1: j1,
     })
@@ -81,8 +90,12 @@ io.on('connection', (socket) => {
     });
   })
 
-  socket.on("j1Claimed", () => {
-    socket.to(j2.socketId ?? "").emit("j1Claimed")
+  socket.on("j2Played", () => {
+    socket.to(j1.socketId ?? "").emit("j2Played")
+  })
+
+  socket.on("game-over", (data) => {
+    socket.to(j2.socketId ?? "").emit("game-over", data)
     cleanup()
   })
 

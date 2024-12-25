@@ -5,14 +5,15 @@ type TButtonStatus = "loading" | "ready" | "success" | "error";
 interface ITxButtonProps {
   asyncTask: () => Promise<void | boolean>;
   children: string | string[];
+  isLoading?: boolean;
 }
 
-const TxButton = ({ asyncTask, children}: ITxButtonProps) => {
+const TxButton = ({ asyncTask, children, isLoading}: ITxButtonProps) => {
   const [status, setStatus] = useState<TButtonStatus>("ready");
 
   return (
     <button
-      disabled={status === 'loading'}
+      disabled={status === 'loading' || isLoading}
       className={`flex w-full mt-5 px-5 py-3.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed`}
       onClick={async () => {
         setStatus("loading");

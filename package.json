@@ -2,6 +2,7 @@
   "name": "kleros-assignment",
   "packageManager": "yarn@4.5.3",
   "scripts": {
+    "compileContracts": "yarn workspace @kleros-assignment/contracts compile",
     "client:dev": "yarn workspace @kleros-assignment/client dev",
     "client:build": "yarn workspace @kleros-assignment/client build",
     "server:dev": "yarn workspace @kleros-assignment/server dev",

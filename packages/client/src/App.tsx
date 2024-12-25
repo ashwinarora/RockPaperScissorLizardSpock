@@ -6,17 +6,18 @@ import JoinGame from "./components/JoinGame";
 
 export type gameJ1 = {
   isThisJ1: true,
-  status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed",
+  status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   j2Address?: string,
   contractAddress?: string,
 }
 
 export type gameJ2 = {
   isThisJ1: false,
-  status: "j1Ready"| "waitingJ1Deployment" | "j1Deployed",
+  status: "j1Ready"| "waitingJ1Deployment" | "j1Deployed" | "j2Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   stake: string,
   chainId: string,
   contractAddress?: string,
+  solveTx?: string
 }
 
 export type gameState = gameJ1 | gameJ2;
@@ -35,7 +36,6 @@ const App = () => {
     }
 
     const handleIncomingStatus = (status) => {
-      console.log(status)
       if(status.status === "waiting") {
         setGame({ isThisJ1: true, status: "init" });
       }
@@ -72,11 +72,36 @@ const App = () => {
       });
     }
 
+    const handleJ2Played = () => {
+      setGame((prevGame) => {
+        if(!prevGame?.isThisJ1) return prevGame;
+        return {
+          ...prevGame,
+          status: "j2Played",
+        }
+      })
+    }
+
+    const handleGameOver = (data) => {
+      setGame((prevGame) => {
+        if(!prevGame) return prevGame;
+        if(prevGame?.isThisJ1) return prevGame;
+        console.log(prevGame)
+        return {
+          ...prevGame,
+          status: data.winner === "draw" ? "draw" : data.winner === "j1" ? "j1Won" : "j2Won",
+          solveTx: data.solveTxHash,
+        }
+      })
+    }
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('gameStatus', handleIncomingStatus);
     socket.on('j2Ready', handleJ2Ready)
     socket.on('j1Deployed', handleJ1Deployed)
+    socket.on('j2Played', handleJ2Played)
+    socket.on('game-over', handleGameOver)
 
     return () => {
       socket.off('connect', onConnect);
@@ -84,6 +109,8 @@ const App = () => {
       socket.off('gameStatus', handleIncomingStatus);
       socket.off('j2Ready', handleJ2Ready)
       socket.off('j1Deployed', handleJ1Deployed)
+      socket.off('j2Played', handleJ2Played)
+      socket.off('game-over', handleGameOver)
     }
   }, [])
 
@@ -102,4 +129,4 @@ const App = () => {
 
 export default App
 
-// need to make the join game page. Get the stake from the socket and do join. Then emit j2 address. j1 will then get j2 address and then start the game. 
+// call solve function from NewGame.tsx
