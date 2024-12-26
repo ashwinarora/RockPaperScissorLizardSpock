@@ -134,7 +134,7 @@ const JoinGame = ({ game, setGame }: IJoinGameProps) => {
         {
           game.status === "j1Won" && (
             <div className="italic">
-              <p>Game Over! J1 won!</p>
+              <p>Game Over! J1 won! You Lost.</p>
             </div>
           )
         }
