@@ -8,13 +8,13 @@ import {
   getWinner,
   HexString,
   Move,
+  RPSLS,
   toRealNumber,
 } from "./utils";
 import {
   useAccount,
 } from "wagmi";
 import TxButton from "./TxButton";
-import RPSLS from "../../../contracts/artifacts/contracts/RPS.sol/RPS.json";
 import { useDeployContract } from "wagmi";
 import { gameJ1 } from "../App";
 import Timeout from "./Timeout";
