@@ -74,10 +74,13 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
             <button
               disabled={!stake.length}
               onClick={() => {
+                if(!socket.id) return;
+                if(!chain?.id) return;
+                if(!address) return;
                 socket.emit("j1Ready", {
                   socketId: socket.id,
                   stake: stake,
-                  chainId: chain?.id,
+                  chainId: chain?.id.toString(),
                   j1Address: address,
                 });
                 setGame({ ...game, status: "j2waiting" });
@@ -118,6 +121,7 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
                   const receipt = await waitForTransactionReceipt(config, {
                     hash: deployTxHash,
                   });
+                  if(!receipt.contractAddress) throw new Error("Contract not found");
                   setGame({
                     ...game,
                     status: "contractDeployed",
@@ -178,28 +182,32 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
             <TxButton
               asyncTask={async () => {
                 console.log(j2Move);
-                const solveTxHash = await writeContractAsync({
-                  abi: RPSLS.abi,
-                  address: game.contractAddress as HexString,
-                  functionName: "solve",
-                  args: [getMoveNumber(move), salt],
-                });
-                const j1MoveNumber = getMoveNumber(move);
-                const j2MoveNumber = Number(j2Move);
-                console.log(j1MoveNumber, j2MoveNumber);
-                const winner = getWinner(j1MoveNumber, j2MoveNumber);
-                const recepit = await waitForTransactionReceipt(config, {
-                  hash: solveTxHash,
-                });
-                if(recepit.status === "success") {
-                  socket.emit("game-over", {
-                    solveTxHash: recepit.transactionHash,
-                    winner: winner,
-                  })
-                  setGame({
-                    ...game,
-                    status: winner === "draw" ? "draw" : winner === "j1" ? "j1Won" : "j2Won"
-                  })
+                try {
+                  const solveTxHash = await writeContractAsync({
+                    abi: RPSLS.abi,
+                    address: game.contractAddress as HexString,
+                    functionName: "solve",
+                    args: [getMoveNumber(move), salt],
+                  });
+                  const j1MoveNumber = getMoveNumber(move);
+                  const j2MoveNumber = Number(j2Move);
+                  console.log(j1MoveNumber, j2MoveNumber);
+                  const winner = getWinner(j1MoveNumber, j2MoveNumber);
+                  const recepit = await waitForTransactionReceipt(config, {
+                    hash: solveTxHash,
+                  });
+                  if(recepit.status === "success") {
+                    socket.emit("gameOver", {
+                      solveTxHash: recepit.transactionHash,
+                      winner: winner,
+                    })
+                    setGame({
+                      ...game,
+                      status: winner === "draw" ? "draw" : winner === "j1" ? "j1Won" : "j2Won"
+                    })
+                  }
+                } catch (error) {
+                  console.log(error)
                 }
               }}
             >

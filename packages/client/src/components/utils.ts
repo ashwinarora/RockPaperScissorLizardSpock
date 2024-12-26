@@ -47,15 +47,16 @@ export const getHash = (move: Move, salt: bigint) => {
 };
 
 export const getRandomSalt = (): bigint => {
-  const maxUint256 = (BigInt(1) << BigInt(256)) - BigInt(1); // 2^256 - 1
-  const randomHex = Array.from({ length: 64 }) // 64 hex digits (256 bits)
-      .map(() => Math.floor(Math.random() * 16).toString(16))
-      .join('');
-  const randomBigInt = BigInt('0x' + randomHex);
+  // secure random generator to create 256 bits (32 bytes)
+  const randomBytes = crypto.getRandomValues(new Uint8Array(32)); 
 
-  // Ensure it's within bounds (this is unlikely to exceed bounds)
-  return randomBigInt <= maxUint256 ? randomBigInt : getRandomSalt();
-}
+  // Converting bytes to a hexadecimal string
+  const randomHex = Array.from(randomBytes, (byte) =>
+    byte.toString(16).padStart(2, '0')
+  ).join('');
+
+  return BigInt('0x' + randomHex);
+};
 
 export const getWinner = (_c1: number, _c2: number): "j1" | "j2" | "draw" => {
   if (_c1 === _c2) {

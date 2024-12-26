@@ -36,6 +36,8 @@ const JoinGame = ({ game, setGame }: IJoinGameProps) => {
             disabled={game.status === "waitingJ1Deployment"}
             className="bg-blue-500 hover:bg-blue-700 text-white p-3 w-full rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
             onClick={() => {
+              if(!socket.id) return;
+              if(!address) return;
               socket.emit("j2Ready", {
                 socketId: socket.id,
                 j2Address: address,
