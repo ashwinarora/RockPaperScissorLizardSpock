@@ -14,7 +14,6 @@ import {
   useAccount,
 } from "wagmi";
 import TxButton from "./TxButton";
-import RPSLS from "../../../contracts/artifacts/contracts/RPS.sol/RPS.json";
 import { useDeployContract } from "wagmi";
 import { gameJ1 } from "../App";
 import Timeout from "./Timeout";
@@ -23,6 +22,7 @@ import { useReadContract } from "wagmi";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "../wagmi";
 import useTimer from "./useTimer";
+import { RPSLS } from "@kleros-assignment/contract";
 
 interface INewGameProps {
   game: gameJ1;

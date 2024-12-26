@@ -2,7 +2,8 @@
   "name": "kleros-assignment",
   "packageManager": "yarn@4.5.3",
   "scripts": {
-    "compileContracts": "yarn workspace @kleros-assignment/contracts compile",
+    "installContracts": "yarn workspace @kleros-assignment/contract install",
+    "compileContracts": "yarn workspace @kleros-assignment/contract compile",
     "client:dev": "yarn workspace @kleros-assignment/client dev",
     "client:build": "yarn workspace @kleros-assignment/client build",
     "server:dev": "yarn workspace @kleros-assignment/server dev",
@@ -12,5 +13,8 @@
   },
   "workspaces": [
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "ts-node": "^10.9.2"
+  }
 }
