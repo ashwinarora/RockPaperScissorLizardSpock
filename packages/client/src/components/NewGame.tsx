@@ -232,7 +232,7 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
         {
           game.status === "j2Won" && (
             <div className="italic">
-              <p>Game Over! J2 won!</p>
+              <p>Game Over! J2 won! You Lost.</p>
             </div>
           )
         }
