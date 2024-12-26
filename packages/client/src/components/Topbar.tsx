@@ -50,7 +50,10 @@ const Topbar = () => {
         ) : (
           <button
             className="ml-2 p-1 bg-blue-500 text-white rounded"
-            onClick={() => connect({ connector: connectors[0] })}
+            onClick={() => {
+              connect({ connector: connectors[0] })
+              socket.emit("statusRequest");
+            }}
           >
             Connect Wallet
           </button>
