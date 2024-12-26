@@ -1,7 +1,4 @@
 import { encodePacked, keccak256 } from "viem";
-import RPSLS from "../../../contract/artifacts/contracts/RPS.sol/RPS.json";
-
-export { RPSLS };
 
 export const MOVES = ["Rock", "Paper", "Scissors", "Spock", "Lizard"] as const;
 
