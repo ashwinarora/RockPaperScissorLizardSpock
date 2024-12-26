@@ -101,7 +101,7 @@ const App = () => {
     socket.on('j2Ready', handleJ2Ready)
     socket.on('j1Deployed', handleJ1Deployed)
     socket.on('j2Played', handleJ2Played)
-    socket.on('game-over', handleGameOver)
+    socket.on('gameOver', handleGameOver)
 
     return () => {
       socket.off('connect', onConnect);
@@ -110,7 +110,7 @@ const App = () => {
       socket.off('j2Ready', handleJ2Ready)
       socket.off('j1Deployed', handleJ1Deployed)
       socket.off('j2Played', handleJ2Played)
-      socket.off('game-over', handleGameOver)
+      socket.off('gameOver', handleGameOver)
     }
   }, [])
 

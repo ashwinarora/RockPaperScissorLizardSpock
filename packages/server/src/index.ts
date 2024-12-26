@@ -3,11 +3,11 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Server } from "socket.io";
-import { Socket } from "node:dgram";
+import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
 
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
+const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: "http://localhost:5173",
   },
@@ -21,10 +21,9 @@ type player = {
   socketId?: string;
   stake?: string;
   chainId?: string;
-  j1Address?: string;
-  j2Address?: string;
-  move?: string;
 }
+
+
 
 type gameStatus = 'waiting' | 'j1Ready' | 'j2Ready'
 
@@ -94,8 +93,8 @@ io.on('connection', (socket) => {
     socket.to(j1.socketId ?? "").emit("j2Played")
   })
 
-  socket.on("game-over", (data) => {
-    socket.to(j2.socketId ?? "").emit("game-over", data)
+  socket.on("gameOver", (data) => {
+    socket.to(j2.socketId ?? "").emit("gameOver", data)
     cleanup()
   })
 
