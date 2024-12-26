@@ -4,6 +4,9 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
+import { JsonRpcProvider } from "ethers";
+import RPSLS from "@kleros-assignment/contract";
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,7 +26,7 @@ type player = {
   chainId?: string;
 }
 
-
+const bscProvider = new JsonRpcProvider("https://data-seed-prebsc-1-s2.bnbchain.org:8545");
 
 type gameStatus = 'waiting' | 'j1Ready' | 'j2Ready'
 
@@ -81,9 +84,21 @@ io.on('connection', (socket) => {
     });
   })
 
-  socket.on("contractDeployed", (data) => {
+  socket.on("contractDeployed", async (data) => {
     if(!j2.socketId) return
     gameContract = data.contractAddress
+    // checking correct contract is deployed
+    // currently only checking for bscTestnet chain 97
+    if(j1.chainId === "97") {
+      const bytecode = await bscProvider.getCode(data.contractAddress);
+      if(bytecode && bytecode !== RPSLS.RPSLS.deployedBytecode) {
+        cleanup()
+        io.emit("gameStatus", {
+          status: status,
+          j1: j1,
+        })
+      }
+    }
     socket.to(j2.socketId).emit("j1Deployed", {
       contractAddress: data.contractAddress,
     });
