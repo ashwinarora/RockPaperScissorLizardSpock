@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
 import { JsonRpcProvider } from "ethers";
-import RPSLS from "@kleros-assignment/contract";
+import deployedBytecode from "./RPSLS.js";
 
 
 const app = express();
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
     // currently only checking for bscTestnet chain 97
     if(j1.chainId === "97") {
       const bytecode = await bscProvider.getCode(data.contractAddress);
-      if(bytecode && bytecode !== RPSLS.RPSLS.deployedBytecode) {
+      if(bytecode && bytecode !== deployedBytecode) {
         cleanup()
         io.emit("gameStatus", {
           status: status,
