@@ -158,12 +158,22 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
             {timeover && (
               <TxButton
                 asyncTask={async () => {
-                  await writeContractAsync({
+                  const timeoutTxHash = await writeContractAsync({
                     abi: RPSLS.abi,
                     address: game.contractAddress as HexString,
                     functionName: "j2Timeout",
                   });
-                  setGame({ ...game, status: "j1Claimed" });
+                  const recepit = await waitForTransactionReceipt(config, {
+                    hash: timeoutTxHash,
+                  });
+                  if(recepit.status === "success") {
+                    setGame({ ...game, status: "j1Claimed" });
+                    socket.emit("gameOver", {
+                      solveTxHash: recepit.transactionHash,
+                      winner: "j1",
+                      isTimeout: true
+                    })
+                  }
                 }}
               >
                 Claim Your Stake
@@ -200,6 +210,7 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
                     socket.emit("gameOver", {
                       solveTxHash: recepit.transactionHash,
                       winner: winner,
+                      isTimeout: false
                     })
                     setGame({
                       ...game,
@@ -233,6 +244,7 @@ const NewGame = ({ game, setGame }: INewGameProps) => {
           game.status === "j2Won" && (
             <div className="italic">
               <p>Game Over! J2 won! You Lost.</p>
+              {game.timedOut && <p>You TimedOut!</p>}
             </div>
           )
         }

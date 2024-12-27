@@ -110,6 +110,11 @@ const JoinGame = ({ game, setGame }: IJoinGameProps) => {
                     });
                     if(receipt.status === "success") {
                       setGame({ ...game, status: "j2Claimed" });
+                      socket.emit("gameOver", {
+                        solveTxHash: receipt.transactionHash,
+                        winner: "j2",
+                        isTimeout: true
+                      })
                     }
                   }}
                 >
@@ -135,6 +140,7 @@ const JoinGame = ({ game, setGame }: IJoinGameProps) => {
           game.status === "j1Won" && (
             <div className="italic">
               <p>Game Over! J1 won! You Lost.</p>
+              {game.timedOut && <p>You TimedOut!</p>}
             </div>
           )
         }

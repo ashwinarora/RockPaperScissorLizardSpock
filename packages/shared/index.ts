@@ -10,7 +10,7 @@ export interface ServerToClientEvents {
   j2Ready: (data: { j2Address: string }) => void;
   j1Deployed: (data: { contractAddress: string }) => void;
   j2Played: () => void;
-  gameOver: (data: { winner: string; reason?: string }) => void;
+  gameOver: (data: { winner: string; isTimeout: boolean }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -29,5 +29,5 @@ export interface ClientToServerEvents {
   }) => void;
   contractDeployed: (data: { contractAddress: string }) => void;
   j2Played: () => void;
-  gameOver: (data: { winner: string; reason?: string, solveTxHash: string }) => void;
+  gameOver: (data: { winner: string; isTimeout: boolean, solveTxHash: string }) => void;
 }

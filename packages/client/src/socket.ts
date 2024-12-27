@@ -3,7 +3,7 @@ import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/s
 
 const URL = 
     import.meta.env.MODE  === 'production'
-    ? 'kleros-assignment-production.up.railway.app'
+    ? import.meta.env.RAILWAY_PUBLIC_DOMAIN
     : 'http://localhost:3000';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(URL);
