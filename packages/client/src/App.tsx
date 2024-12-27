@@ -9,6 +9,7 @@ export type gameJ1 = {
   status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   j2Address?: string,
   contractAddress?: string,
+  timedOut?: boolean,
 }
 
 export type gameJ2 = {
@@ -17,7 +18,8 @@ export type gameJ2 = {
   stake: string,
   chainId: string,
   contractAddress?: string,
-  solveTx?: string
+  solveTx?: string,
+  timedOut?: boolean,
 }
 
 export type gameState = gameJ1 | gameJ2;
@@ -85,12 +87,20 @@ const App = () => {
     const handleGameOver = (data) => {
       setGame((prevGame) => {
         if(!prevGame) return prevGame;
-        if(prevGame?.isThisJ1) return prevGame;
-        console.log(prevGame)
-        return {
-          ...prevGame,
-          status: data.winner === "draw" ? "draw" : data.winner === "j1" ? "j1Won" : "j2Won",
-          solveTx: data.solveTxHash,
+        if(prevGame.isThisJ1) {
+          return {
+            ...prevGame,
+            status: "j2Won",
+            solveTx: data.solveTxHash,
+            timedOut: data.isTimeout
+          }
+        } else {
+          return {
+            ...prevGame,
+            status: data.winner === "draw" ? "draw" : data.winner === "j1" ? "j1Won" : "j2Won",
+            solveTx: data.solveTxHash,
+            timedOut: data.isTimeout
+          }
         }
       })
     }
