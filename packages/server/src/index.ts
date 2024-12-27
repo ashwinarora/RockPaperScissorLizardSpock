@@ -110,10 +110,8 @@ io.on('connection', (socket) => {
 
   socket.on("gameOver", (data) => {
     if(j1.socketId === socket.id){
-      console.log("J1 says game over")
       socket.to(j2.socketId ?? "").emit("gameOver", data)
     } else if(j2.socketId === socket.id) {
-      console.log("J2 says game over")
       socket.to(j1.socketId ?? "").emit("gameOver", data)
     }
     cleanup()
