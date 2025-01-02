@@ -44,11 +44,9 @@ const cleanup = () => {
   gameContract = ""
 }
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  
+io.on('connection', (socket) => {  
   socket.on("statusRequest", () => {
-    console.log("statusRequested")
+    console.log("status requested")
     socket.emit("gameStatus", {
       status: status,
       j1: j1,
