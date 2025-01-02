@@ -38,6 +38,7 @@ const App = () => {
     }
 
     const handleIncomingStatus = (status) => {
+      console.log(status);
       if(status.status === "waiting") {
         setGame({ isThisJ1: true, status: "init" });
       }
