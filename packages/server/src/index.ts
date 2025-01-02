@@ -48,6 +48,7 @@ io.on('connection', (socket) => {
   console.log('a user connected');
   
   socket.on("statusRequest", () => {
+    console.log("statusRequested")
     socket.emit("gameStatus", {
       status: status,
       j1: j1,
