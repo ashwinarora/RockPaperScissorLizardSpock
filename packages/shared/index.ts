@@ -11,6 +11,14 @@ export interface ServerToClientEvents {
   j1Deployed: (data: { contractAddress: string }) => void;
   j2Played: () => void;
   gameOver: (data: { winner: string; isTimeout: boolean }) => void;
+  // ----------------
+  joinableGames: (data: {
+    joinableGames: {
+      chainId: string;
+      stake: string;
+    }[];
+  }) => void;
+
 }
 
 export interface ClientToServerEvents {
@@ -23,11 +31,19 @@ export interface ClientToServerEvents {
     j1Address: string;
     move?: string;
   }) => void;
-  j2Ready: (data: {
-    socketId: string;
-    j2Address: string;
-  }) => void;
+  j2Ready: (data: { socketId: string; j2Address: string }) => void;
   contractDeployed: (data: { contractAddress: string }) => void;
   j2Played: () => void;
-  gameOver: (data: { winner: string; isTimeout: boolean, solveTxHash: string }) => void;
+  gameOver: (data: {
+    winner: string;
+    isTimeout: boolean;
+    solveTxHash: string;
+  }) => void;
+  // ----------------
+  getJoinableGames: () => void;
+  createNewGame: (data: {
+    chainId: string;
+    stake: string;
+    j1Address: string;
+  }) => void;
 }

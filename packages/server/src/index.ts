@@ -6,6 +6,7 @@ import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
 import { JsonRpcProvider } from "ethers";
 import deployedBytecode from "./RPSLS.js";
+import GamesManager from "./GamesManager.js";
 
 
 const app = express();
@@ -44,80 +45,96 @@ const cleanup = () => {
   gameContract = ""
 }
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  
-  socket.on("statusRequest", () => {
-    socket.emit("gameStatus", {
-      status: status,
-      j1: j1,
+io.on("connection", (socket) => {
+  console.log("a user connected");
+
+  socket.on("getJoinableGames", async () => {
+    const joinableGames = await GamesManager.getInstance().getJoinableGames()
+    socket.emit("joinableGames", {
+      joinableGames: []
     })
   })
 
-  socket.on("cleanupServer", () => {
-    cleanup()
-    io.emit("gameStatus", {
-      status: status,
-      j1: j1,
-    })
-  })
-
-  socket.on("j1Ready", (data) => {
-    console.log("j1Ready", data);
-    status = 'j1Ready'
-    j1 = {...data}
-    console.log(j1)
-    socket.broadcast.emit("gameStatus", {
-      status: status,
-      j1: j1,
-    });
-  })
-
-  socket.on("j2Ready", (data) => {
-    if(!j1.socketId) return
-    console.log("j2Ready", data);
-    j2 = {...data}
-    status = 'j2Ready'
-    console.log(j2)
-    socket.to(j1.socketId).emit("j2Ready", {
-      j2Address: data.j2Address,
-    });
-  })
-
-  socket.on("contractDeployed", async (data) => {
-    if(!j2.socketId) return
-    gameContract = data.contractAddress
-    // checking correct contract is deployed
-    // currently only checking for bscTestnet chain 97
-    if(j1.chainId === "97") {
-      const bytecode = await bscProvider.getCode(data.contractAddress);
-      if(bytecode && bytecode !== deployedBytecode) {
-        cleanup()
-        io.emit("gameStatus", {
-          status: status,
-          j1: j1,
-        })
-      }
-    }
-    socket.to(j2.socketId).emit("j1Deployed", {
-      contractAddress: data.contractAddress,
-    });
-  })
-
-  socket.on("j2Played", () => {
-    socket.to(j1.socketId ?? "").emit("j2Played")
-  })
-
-  socket.on("gameOver", (data) => {
-    if(j1.socketId === socket.id){
-      socket.to(j2.socketId ?? "").emit("gameOver", data)
-    } else if(j2.socketId === socket.id) {
-      socket.to(j1.socketId ?? "").emit("gameOver", data)
-    }
-    cleanup()
+  socket.on("createNewGame", async (data) => {
+    await GamesManager.getInstance().createNewGame(data)
   })
 
 });
+
+// io.on('connection', (socket) => {
+//   console.log('a user connected');
+  
+//   socket.on("statusRequest", () => {
+//     socket.emit("gameStatus", {
+//       status: status,
+//       j1: j1,
+//     })
+//   })
+
+//   socket.on("cleanupServer", () => {
+//     cleanup()
+//     io.emit("gameStatus", {
+//       status: status,
+//       j1: j1,
+//     })
+//   })
+
+//   socket.on("j1Ready", (data) => {
+//     console.log("j1Ready", data);
+//     status = 'j1Ready'
+//     j1 = {...data}
+//     console.log(j1)
+//     socket.broadcast.emit("gameStatus", {
+//       status: status,
+//       j1: j1,
+//     });
+//   })
+
+//   socket.on("j2Ready", (data) => {
+//     if(!j1.socketId) return
+//     console.log("j2Ready", data);
+//     j2 = {...data}
+//     status = 'j2Ready'
+//     console.log(j2)
+//     socket.to(j1.socketId).emit("j2Ready", {
+//       j2Address: data.j2Address,
+//     });
+//   })
+
+//   socket.on("contractDeployed", async (data) => {
+//     if(!j2.socketId) return
+//     gameContract = data.contractAddress
+//     // checking correct contract is deployed
+//     // currently only checking for bscTestnet chain 97
+//     if(j1.chainId === "97") {
+//       const bytecode = await bscProvider.getCode(data.contractAddress);
+//       if(bytecode && bytecode !== deployedBytecode) {
+//         cleanup()
+//         io.emit("gameStatus", {
+//           status: status,
+//           j1: j1,
+//         })
+//       }
+//     }
+//     socket.to(j2.socketId).emit("j1Deployed", {
+//       contractAddress: data.contractAddress,
+//     });
+//   })
+
+//   socket.on("j2Played", () => {
+//     socket.to(j1.socketId ?? "").emit("j2Played")
+//   })
+
+//   socket.on("gameOver", (data) => {
+//     if(j1.socketId === socket.id){
+//       socket.to(j2.socketId ?? "").emit("gameOver", data)
+//     } else if(j2.socketId === socket.id) {
+//       socket.to(j1.socketId ?? "").emit("gameOver", data)
+//     }
+//     cleanup()
+//   })
+
+// });
 
 
 httpServer.listen(3000, () => {
