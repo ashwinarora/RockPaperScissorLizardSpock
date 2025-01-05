@@ -21,7 +21,7 @@ class GamesManager {
           chainId,
           stake,
           state: "INIT",
-          j1Address
+          j1Address,
         }
       })
     } catch (error) {
@@ -37,7 +37,8 @@ class GamesManager {
       },
       select: {
         chainId: true,
-        stake: true
+        stake: true,
+        updatedAt: true,
       }
     })
     return joinableGames

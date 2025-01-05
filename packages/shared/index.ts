@@ -12,12 +12,6 @@ export interface ServerToClientEvents {
   j2Played: () => void;
   gameOver: (data: { winner: string; isTimeout: boolean }) => void;
   // ----------------
-  joinableGames: (data: {
-    joinableGames: {
-      chainId: string;
-      stake: string;
-    }[];
-  }) => void;
 
 }
 
@@ -40,7 +34,6 @@ export interface ClientToServerEvents {
     solveTxHash: string;
   }) => void;
   // ----------------
-  getJoinableGames: () => void;
   createNewGame: (data: {
     chainId: string;
     stake: string;
