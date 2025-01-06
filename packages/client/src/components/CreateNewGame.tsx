@@ -12,7 +12,7 @@ const CreateNewGame = ({setGame}: INewGameProps) => {
   const { address, chain } = useAccount();
   const createGame = trpc.createNewGame.useMutation();
   const [stake, setStake] = useState("");
-  console.log(createGame.isPending)
+  
   return (
     <div className="w-5/12 mx-auto mt-4 text-2xl flex flex-col items-start gap-y-4 justify-center">
       <div> Create New Game</div>

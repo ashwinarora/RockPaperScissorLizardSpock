@@ -4,6 +4,7 @@ import { socket } from './socket';
 import LandingPage from "./components/LandingPage";
 import CreateNewGame from "./components/CreateNewGame";
 import J1Game from "./components/J1Game";
+import { ServerToClientEvents } from "@kleros-assignment/shared";
 
 export type gameJ1 = {
   status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
@@ -15,7 +16,7 @@ export type gameJ1 = {
 }
 
 export type gameJ2 = {
-  status: "init" | "j1Ready"| "waitingJ1Deployment" | "j1Deployed" | "j2Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
+  status: "preJoinChecks" | "j1Ready"| "waitingJ1Deployment" | "j1Deployed" | "j2Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   isThisJ1: false,
   stake: string,
   chainId: string,
@@ -58,6 +59,17 @@ const App = () => {
   useEffect(() => {
     // setting listerns for only player 2
     if(game.isThisJ1 !== false) return
+
+    const onJoinGameError: ServerToClientEvents["joinGameError"] = (data) => {
+      console.log("join game error", data)
+    }
+
+    socket.on("joinGameError", onJoinGameError);
+
+    return () => {
+      socket.off("joinGameError", onJoinGameError);
+    }
+
   }, [game])
 
 
@@ -66,7 +78,7 @@ const App = () => {
       <Topbar />
       {
         game.status === "init" && (<>
-          <LandingPage />
+          <LandingPage setGame={setGame} />
           <div className="flex my-16 justify-center items-center">
             <hr className="w-1/12 mx-2" />
             <p>Or</p>

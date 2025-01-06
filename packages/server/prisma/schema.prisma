@@ -15,6 +15,7 @@ datasource db {
 
 enum GameState {
   INIT
+  ABANDONED
   J2JOINED
   DEPLOYED
   J2PLAYED

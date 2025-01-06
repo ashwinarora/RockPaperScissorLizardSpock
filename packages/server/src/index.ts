@@ -10,6 +10,7 @@ import GamesManager from "./GamesManager.js";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from "./router";
 import cors from 'cors'
+import { number } from "zod";
 
 
 const app = express();
@@ -36,36 +37,45 @@ app.use('/trpc',
   })
 )
 
-type player = {
-  socketId?: string;
-  stake?: string;
-  chainId?: string;
-}
 
 const bscProvider = new JsonRpcProvider("https://data-seed-prebsc-1-s2.bnbchain.org:8545");
 
-type gameStatus = 'waiting' | 'j1Ready' | 'j2Ready'
-
-let status: gameStatus= 'waiting' 
-let gameContract: string = ""
-
-let j1: player = {}
-let j2: player = {}
-
-const cleanup = () => {
-  console.log("cleaning up server") 
-  status = 'waiting'
-  j1 = {}
-  j2 = {}
-  gameContract = ""
-}
 
 io.on("connection", (socket) => {
   console.log("a user connected");
 
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+    const gameId = GamesManager.getInstance().removeGameByJ1SocketId(socket.id)
+  })
+
   socket.on("newGameCreated", (data) => {
+    const gameId = data.gameId.toString()
     console.log("new game created", data)
-    socket.join(data.gameId.toString());
+    socket.join(gameId);
+    GamesManager.getInstance().addGame({ gameId: gameId, j1SocketId: socket.id })
+  })
+
+  socket.on("joinGame", async (data) => {
+    console.log("joining game", data)
+    const gameId = data.gameId.toString()
+    const roomSize = io.sockets.adapter.rooms.get(gameId)?.size || 0;
+    console.log("roomSize", roomSize)
+    if(!GamesManager.getInstance().gameExists(gameId)){
+      socket.emit("joinGameError", { 
+        error: "Game Abandoned" 
+      });
+      return;
+    }
+    if(roomSize !== 1) {
+      socket.emit("joinGameError", { 
+        error: "Room is full" 
+      });
+      return;
+    }
+    socket.join(gameId);
+    GamesManager.getInstance().addJ2SocketIdToGame({ gameId: gameId, j2SocketId: socket.id })
+    io.to(gameId).emit("gameStart", { gameId: Number(gameId) });
   })
 
 });

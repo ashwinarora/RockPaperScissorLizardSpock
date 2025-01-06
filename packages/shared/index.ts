@@ -12,6 +12,8 @@ export interface ServerToClientEvents {
   j2Played: () => void;
   gameOver: (data: { winner: string; isTimeout: boolean }) => void;
   // ----------------
+  joinGameError: (data: { error: string }) => void;
+  gameStart: (data: { gameId: number }) => void;
 
 }
 
@@ -35,4 +37,5 @@ export interface ClientToServerEvents {
   }) => void;
   // ----------------
   newGameCreated: (data: { gameId: number }) => void;
+  joinGame: (data: { gameId: number }) => void;
 }

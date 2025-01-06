@@ -1,9 +1,15 @@
+import { Dispatch, SetStateAction } from "react";
+import { socket } from "../socket";
 import { trpc } from "../trpc";
 import { formatDistanceToNow } from "date-fns";
+import { gameState } from "../App";
 
-const LandingPage = () => {
+interface ILandingPageProps {
+  setGame: Dispatch<SetStateAction<gameState>>
+}
+
+const LandingPage = ({setGame}: ILandingPageProps ) => {
   const { data: joinableGames } = trpc.joinableGames.useQuery();
-  console.log(joinableGames);
 
   return (
     <div className="w-full h-full flex flex-col text-2xl mt-2 justify-center items-center">
@@ -33,7 +39,16 @@ const LandingPage = () => {
                 <td className="px-8 py-2">
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-
+                    onClick={(() => {
+                      socket.emit("joinGame", { gameId: game.id });
+                      setGame((prevGame) => ({
+                        ...prevGame,
+                        isThisJ1: false,
+                        status: "preJoinChecks",
+                        stake: game.stake,
+                        chainId: game.chainId,
+                      }))
+                    })}
                   >
                     Join
                   </button>
