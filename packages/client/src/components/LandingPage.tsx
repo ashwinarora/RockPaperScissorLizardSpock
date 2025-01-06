@@ -1,20 +1,29 @@
-import { Dispatch, SetStateAction } from "react";
 import { socket } from "../socket";
 import { trpc } from "../trpc";
 import { formatDistanceToNow } from "date-fns";
-import { gameState } from "../App";
+import { gameJ2, gameState } from "../App";
+import { useAccount } from "wagmi";
+import { useEffect } from "react";
 
 interface ILandingPageProps {
-  setGame: Dispatch<SetStateAction<gameState>>
+  game: gameState,
+  setGame: React.Dispatch<React.SetStateAction<gameState>>
 }
 
-const LandingPage = ({setGame}: ILandingPageProps ) => {
-  const { data: joinableGames } = trpc.joinableGames.useQuery();
+const LandingPage = ({game, setGame}: ILandingPageProps ) => {
+  const { address } = useAccount();
+  const { data: joinableGames, refetch } = trpc.joinableGames.useQuery();
+
+  useEffect(() => {
+    refetch();
+  }, [game])
+
+  console.log(joinableGames?.length);
 
   return (
     <div className="w-full h-full flex flex-col text-2xl mt-2 justify-center items-center">
       <h1>Join a Game</h1>
-      {joinableGames?.length === 0 ? (
+      {!joinableGames ||  joinableGames?.length === 0 ? (
         <p>No available games</p>
       ) : (
         <table className="table-auto mt-4">
@@ -40,14 +49,19 @@ const LandingPage = ({setGame}: ILandingPageProps ) => {
                   <button
                     className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={(() => {
-                      socket.emit("joinGame", { gameId: game.id });
-                      setGame((prevGame) => ({
-                        ...prevGame,
-                        isThisJ1: false,
-                        status: "preJoinChecks",
-                        stake: game.stake,
-                        chainId: game.chainId,
-                      }))
+                      if(!address) return;
+                      setGame(() => {
+                        const newState: gameJ2 = {
+                          isThisJ1: false,
+                          status: "preJoinChecks",
+                          stake: game.stake,
+                        }
+                        return newState
+                      })
+                      socket.emit("joinGame", {
+                        gameId: game.id.toString(),
+                        j2Address: address,
+                      });
                     })}
                   >
                     Join

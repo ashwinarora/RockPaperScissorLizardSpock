@@ -10,7 +10,6 @@ import GamesManager from "./GamesManager.js";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from "./router";
 import cors from 'cors'
-import { number } from "zod";
 
 
 const app = express();
@@ -37,9 +36,7 @@ app.use('/trpc',
   })
 )
 
-
 const bscProvider = new JsonRpcProvider("https://data-seed-prebsc-1-s2.bnbchain.org:8545");
-
 
 io.on("connection", (socket) => {
   console.log("a user connected");
@@ -63,8 +60,9 @@ io.on("connection", (socket) => {
     console.log("roomSize", roomSize)
     if(!GamesManager.getInstance().gameExists(gameId)){
       socket.emit("joinGameError", { 
-        error: "Game Abandoned" 
+        error: "Game was Abandoned" 
       });
+      await GamesManager.getInstance().markGameAsAbandoned(gameId)
       return;
     }
     if(roomSize !== 1) {
@@ -75,7 +73,49 @@ io.on("connection", (socket) => {
     }
     socket.join(gameId);
     GamesManager.getInstance().addJ2SocketIdToGame({ gameId: gameId, j2SocketId: socket.id })
-    io.to(gameId).emit("gameStart", { gameId: Number(gameId) });
+    console.log("starting game ", gameId)
+    io.to(gameId).emit("gameStart", {
+      gameId: gameId,
+      j2Address: data.j2Address
+    });
+  })
+
+  socket.on("contractDeployed", async (data) => {
+    const result = await GamesManager.getInstance().setGameContractAddress({ gameId: data.gameId, contractAddress: data.contractAddress })
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
+    // checking correct contract is deployed
+    // currently only checking for bscTestnet chain 97
+    // if(result?.chainId === "97") {
+    //   const bytecode = await bscProvider.getCode(data.contractAddress);
+    //   if(bytecode && bytecode !== deployedBytecode) {
+    //     io.to(data.gameId).emit("gameStatus", {
+    //       status: status,
+    //       j1: j1,
+    //     });
+    //   }
+    // }
+    socket.to(gameSockets.j2SocketId).emit("j1Deployed", {
+      contractAddress: data.contractAddress,
+    });
+  })
+
+  socket.on("j2Played", async (data) => {
+    await GamesManager.getInstance().setJ2Played(data.gameId)
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
+    socket.to(gameSockets.j1SocketId).emit("j2Played")
+  })
+
+  socket.on("gameOver", (data) => {
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
+    if(gameSockets.j1SocketId === socket.id){
+      socket.to(gameSockets.j2SocketId).emit("gameOver", data)
+    } else if(gameSockets.j2SocketId === socket.id) {
+      socket.to(gameSockets.j1SocketId).emit("gameOver", data)
+    }
+    GamesManager.getInstance().finalizeGame(data)
   })
 
 });

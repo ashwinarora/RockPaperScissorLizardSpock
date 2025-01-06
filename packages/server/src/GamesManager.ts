@@ -1,5 +1,6 @@
 import e from "express";
 import prisma  from "./prisma";
+import { winner } from "@kleros-assignment/shared";
 
 class GamesManager {
   private static instance: GamesManager;
@@ -40,7 +41,7 @@ class GamesManager {
   }
 
   public async getJoinableGames()  {
-    const minutes = 5
+    const minutes = 60
     const joinableGames = await prisma.game.findMany({
       where: {
         state: "INIT",
@@ -62,6 +63,13 @@ class GamesManager {
     return this._gamesMap
   }
 
+  public getSocketsOf(gameId: string) {
+    const game = this._gamesMap.get(gameId)
+    if(game) {
+      return game
+    }
+  }
+
   public set gamesMap(value) {
     this._gamesMap = value
   }
@@ -74,26 +82,28 @@ class GamesManager {
     const gameId =  Array.from(this._gamesMap.keys()).find(key => this._gamesMap.get(key)?.j1SocketId === j1SocketId)
     if(gameId) {
       this._gamesMap.delete(gameId)
-      try {
-        await prisma.game.update({
-          where: {
-            id: Number(gameId)
-          },
-          data: {
-            state: "ABANDONED"
-          }
-        })
-      } catch (error) {
-        console.log("Error updating game state", error)
-      }
+      await this.markGameAsAbandoned(gameId)
     }
     return gameId
   }
 
+  public async markGameAsAbandoned(gameId: string) {
+    try {
+      await prisma.game.update({
+        where: {
+          id: Number(gameId)
+        },
+        data: {
+          state: "ABANDONED"
+        }
+      })
+    } catch (error) {
+      console.log("Error updating game state", error)
+    }
+  }
+
   public gameExists(gameId: string) {
-    console.log(this._gamesMap)
     const game = this._gamesMap.get(gameId)
-    console.log("game is", game)
     return !!game
   }
 
@@ -101,9 +111,105 @@ class GamesManager {
     const game = this._gamesMap.get(gameId)
     if(game) {
       game.j2SocketId = j2SocketId
+      await prisma.game.update({
+        where: {
+          id: Number(gameId)
+        },
+        data: {
+          state: "J2JOINED"
+        }
+      })
     } else {
       throw new Error("Game not found")
     }
+  }
+
+  public async setGameContractAddress({gameId, contractAddress}: {gameId: string, contractAddress: string}) {
+    const game = this._gamesMap.get(gameId)
+    if(game) {
+      try {
+        const result = await prisma.game.update({
+          where: {
+            id: Number(gameId)
+          },
+          data: {
+            state: "DEPLOYED",
+            contractAddress
+          },
+          select: {
+            chainId: true,
+          }
+        })
+        return result
+      } catch (error) {
+        console.error("Error updating game state", error)
+      }
+    } else {
+      throw new Error("Game not found")
+    }
+  }
+
+  public async setJ2Played(gameId: string) {
+    try {
+      const game = this._gamesMap.get(gameId);
+      if (game) {
+        await prisma.game.update({
+          where: {
+            id: Number(gameId)
+          },
+          data: {
+            state: "J2PLAYED"
+          }
+        });
+      } else {
+        throw new Error("Game not found");
+      }
+    } catch (error) {
+      console.error(`Failed to set J2Played for gameId ${gameId}:`, error);
+    }
+  }
+
+  public async finalizeGame(data: {winner: winner,  isTimeout: boolean, solveTxHash: string, gameId: string;}) {
+    const { winner, isTimeout, solveTxHash, gameId } = data;
+    let finalState: "J1WON" | "J2WON" | "DRAW" | "J1TIMEDOUT" | "J2TIMEDOUT";
+    if (isTimeout) {
+      if (winner === 'j1') {
+        finalState = 'J1TIMEDOUT';
+      } else if (winner === 'j2') {
+        finalState = 'J2TIMEDOUT';
+      } else {
+        throw new Error("Invalid winner for timeout");
+      }
+    } else {
+        if (winner === 'j1') {
+          finalState = 'J1WON';
+        } else if (winner === 'j2') {
+          finalState = 'J2WON';
+        } else if (winner === 'draw') {
+          finalState = 'DRAW';
+        } else {
+          throw new Error("Invalid winner");
+        }
+    }
+    try {
+      const game = this._gamesMap.get(gameId);
+      if (game) {
+        await prisma.game.update({
+          where: {
+            id: Number(gameId)
+          },
+          data: {
+            state: finalState,
+          }
+        });
+      } else {
+        throw new Error("Game not found");
+      }
+      this._gamesMap.delete(gameId);
+    } catch (error) {
+      console.error(`Failed to finalize game ${gameId}:`, error);
+    }
+
   }
 
 }
