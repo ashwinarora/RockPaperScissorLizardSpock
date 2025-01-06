@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import Topbar from "./components/Topbar"
 import { socket } from './socket';
-import NewGame from "./components/NewGame";
-import JoinGame from "./components/JoinGame";
 import LandingPage from "./components/LandingPage";
 import CreateNewGame from "./components/CreateNewGame";
+import J1Game from "./components/J1Game";
 
 export type gameJ1 = {
   status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   isThisJ1?: true,
+  gameId?: number,
   j2Address?: string,
   contractAddress?: string,
   timedOut?: boolean,
@@ -34,7 +34,6 @@ const App = () => {
   useEffect(() => {
     const onConnect = () => {
       console.log("connected");
-      socket.emit('statusRequest');
     }
     
     const onDisconnect = () => {
@@ -43,14 +42,24 @@ const App = () => {
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
-    
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
-      
     }
   }, [])
+
+
+  useEffect(() => {
+    // setting listerns for only player 1
+    if(game.isThisJ1 !== true) return
+  }, [game])
+
+  useEffect(() => {
+    // setting listerns for only player 2
+    if(game.isThisJ1 !== false) return
+  }, [game])
+
 
   return (
     <div>
@@ -63,8 +72,13 @@ const App = () => {
             <p>Or</p>
             <hr className="w-1/12 mx-2" />
           </div>
-          <CreateNewGame />
+          <CreateNewGame setGame={setGame} />
         </>)
+      }
+      {
+        game.status === "j2waiting" && (
+          <J1Game game={game} setGame={setGame} />
+        )
       }
     </div>
   )

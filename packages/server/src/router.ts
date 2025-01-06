@@ -14,9 +14,9 @@ export const appRouter = router({
       j1Address: z.string()
     })).mutation(async ({ input }) => {
       const { chainId, stake, j1Address } = input
-      await GamesManager.getInstance().createNewGame({ chainId, stake, j1Address })
+      const result = await GamesManager.getInstance().createNewGame({ chainId, stake, j1Address })
       return {
-        message: "Game created"
+        gameId: result.id
       }
     })
 });

@@ -16,14 +16,18 @@ class GamesManager {
 
   public async createNewGame({chainId, stake, j1Address}: {chainId: string, stake: string, j1Address: string}) { 
     try {
-      await prisma.game.create({
+      const result = await prisma.game.create({
         data: {
           chainId,
           stake,
           state: "INIT",
           j1Address,
+        },
+        select: {
+          id: true,
         }
       })
+      return result
     } catch (error) {
       console.error("Error creating new game", error)
       throw new Error("Error creating new game")
@@ -31,11 +35,16 @@ class GamesManager {
   }
 
   public async getJoinableGames()  {
+    const minutes = 5
     const joinableGames = await prisma.game.findMany({
       where: {
-        state: "INIT"
+        state: "INIT",
+        createdAt: {
+          gte: new Date(Date.now() - minutes * 60 * 1000)
+        }
       },
       select: {
+        id: true,
         chainId: true,
         stake: true,
         updatedAt: true,

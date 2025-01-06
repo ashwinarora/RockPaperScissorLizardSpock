@@ -34,9 +34,5 @@ export interface ClientToServerEvents {
     solveTxHash: string;
   }) => void;
   // ----------------
-  createNewGame: (data: {
-    chainId: string;
-    stake: string;
-    j1Address: string;
-  }) => void;
+  newGameCreated: (data: { gameId: number }) => void;
 }

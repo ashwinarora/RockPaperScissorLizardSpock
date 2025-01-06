@@ -63,8 +63,9 @@ const cleanup = () => {
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  socket.on("createNewGame", async (data) => {
-    await GamesManager.getInstance().createNewGame(data)
+  socket.on("newGameCreated", (data) => {
+    console.log("new game created", data)
+    socket.join(data.gameId.toString());
   })
 
 });
