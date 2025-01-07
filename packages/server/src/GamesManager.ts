@@ -1,4 +1,3 @@
-import e from "express";
 import prisma  from "./prisma";
 import { winner } from "@kleros-assignment/shared";
 
@@ -170,7 +169,7 @@ class GamesManager {
   }
 
   public async finalizeGame(data: {winner: winner,  isTimeout: boolean, solveTxHash: string, gameId: string;}) {
-    const { winner, isTimeout, solveTxHash, gameId } = data;
+    const { winner, isTimeout, gameId } = data;
     let finalState: "J1WON" | "J2WON" | "DRAW" | "J1TIMEDOUT" | "J2TIMEDOUT";
     if (isTimeout) {
       if (winner === 'j1') {
