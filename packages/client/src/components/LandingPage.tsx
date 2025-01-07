@@ -18,8 +18,6 @@ const LandingPage = ({game, setGame}: ILandingPageProps ) => {
     refetch();
   }, [game])
 
-  console.log(joinableGames?.length);
-
   return (
     <div className="w-full h-full flex flex-col text-2xl mt-2 justify-center items-center">
       <h1>Join a Game</h1>

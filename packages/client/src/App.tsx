@@ -38,7 +38,6 @@ const initState: gameState = {
 
 const App = () => {
   const [game, setGame] = useState<gameState>({ ...initState});
-  console.log(game)
 
   useEffect(() => {
     const onConnect = () => {

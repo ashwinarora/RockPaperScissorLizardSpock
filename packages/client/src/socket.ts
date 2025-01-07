@@ -4,6 +4,6 @@ import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/s
 export const baseUrl = 
     import.meta.env.MODE  === 'production'
     ? import.meta.env.RAILWAY_PUBLIC_DOMAIN
-    : 'http://localhost:3000';
+    : 'http://localhost:3000/';
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(baseUrl);

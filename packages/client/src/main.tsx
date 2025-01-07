@@ -20,7 +20,7 @@ const queryClient = new QueryClient();
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: baseUrl + "/trpc",
+      url: baseUrl + "trpc",
       headers: {
         'Content-Type': 'application/json', // Explicitly set the content type
       },
