@@ -6,4 +6,7 @@ export const baseUrl =
     ? import.meta.env.RAILWAY_PUBLIC_DOMAIN
     : 'http://localhost:3000/';
 
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(baseUrl);
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(baseUrl, {
+    autoConnect: false,
+    transports: ['websocket'],
+});

@@ -18,7 +18,7 @@ interface IJ1GameProps {
 
 const J1Game = ({game, setGame}: IJ1GameProps) => {
   const { address, chain } = useAccount();
-  const [move, setMove] = useState<Move | null>(null);
+  // const [move, setMove] = useState<Move | null>(null);
   const salt = useMemo(() => getRandomSalt(), []);
   const { deployContractAsync } = useDeployContract();
   const [timeover, setTimeover] = useState(false);
@@ -37,6 +37,26 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
     }
   }, [game])
 
+  useEffect(() => {
+    if (!game.isThisJ1) return;
+    if (game.salt) return;
+    setGame((prevGame) => {
+      return {
+        ...prevGame,
+        salt: salt.toString(),
+      }
+    }) 
+  }, [salt])
+
+  const setMove = (move: Move | undefined) => {
+    setGame((prevGame) => {
+      return {
+        ...prevGame,
+        move: move,
+      }
+    })
+  }
+
   return (
     <div>
       {
@@ -50,17 +70,18 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
       {
         game.status ===  "j2joined" && (
           <div>
-            <MakeMove move={move} setMove={setMove} />
+            <MakeMove move={game.move} setMove={setMove} />
             <TxButton
               asyncTask={async () => {
-                if (!move) return;
+                if (!game.move) return;
                 if (!game.stake.length) return;
                 if (!game.gameId) return;
+                if (!game.salt) return;
                 const realStake = toRealNumber(
                   game.stake,
                   chain?.nativeCurrency.decimals,
                 );
-                const hash = getHash(move, salt);
+                const hash = getHash(game.move, game.salt);
                 try {
                   const deployTxHash = await deployContractAsync({
                     abi: RPSLS.abi,
@@ -93,6 +114,7 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
           </div>
         )
       }
+      <div>{game.move && <p className="mt-4">You selected: {game.move}</p>}</div>
       {
         game.status === "contractDeployed" && (
           <div>
@@ -151,14 +173,16 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
             <TxButton
               asyncTask={async () => {
                 if (!game.gameId) return;
+                if (!game.isThisJ1) return;
+                if (!game.salt) return;
                 try {
                   const solveTxHash = await writeContractAsync({
                     abi: RPSLS.abi,
                     address: game.contractAddress as HexString,
                     functionName: "solve",
-                    args: [getMoveNumber(move), salt],
+                    args: [getMoveNumber(game.move), BigInt(game.salt)],
                   });
-                  const j1MoveNumber = getMoveNumber(move);
+                  const j1MoveNumber = getMoveNumber(game.move);
                   const j2MoveNumber = Number(j2Move);
                   console.log(j1MoveNumber, j2MoveNumber);
                   const winner = getWinner(j1MoveNumber, j2MoveNumber);

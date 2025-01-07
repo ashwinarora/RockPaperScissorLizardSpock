@@ -43,7 +43,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    const gameId = GamesManager.getInstance().removeGameByJ1SocketId(socket.id)
+    const gameId = GamesManager.getInstance().handleDisconnect(socket.id)
+  })
+
+  socket.on("reconnectGame", async (data) => {
+    console.log("reconnect attempt")
+    const success = await GamesManager.getInstance().handleReconnection({...data, socketId: socket.id})
+    socket.emit("reconnectGameSuccess", { success })
   })
 
   socket.on("newGameCreated", (data) => {
@@ -72,7 +78,7 @@ io.on("connection", (socket) => {
       return;
     }
     socket.join(gameId);
-    GamesManager.getInstance().addJ2SocketIdToGame({ gameId: gameId, j2SocketId: socket.id })
+    GamesManager.getInstance().addJ2SocketIdToGame({ gameId: gameId, j2SocketId: socket.id, j2Address: data.j2Address })
     console.log("starting game ", gameId)
     io.to(gameId).emit("gameStart", {
       gameId: gameId,

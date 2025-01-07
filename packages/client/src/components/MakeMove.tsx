@@ -1,8 +1,8 @@
 import { Move, MOVES } from "./utils";
 
 interface IMakeMoveProps {
-  setMove: (move: Move | null) => void;
-  move: Move | null;
+  setMove: (move: Move | undefined) => void;
+  move: Move | undefined;
 }
 
 const MakeMove = ({ move, setMove }: IMakeMoveProps) => {
@@ -17,7 +17,7 @@ const MakeMove = ({ move, setMove }: IMakeMoveProps) => {
                 if(move !== m) {
                   setMove(m);
                 } else {
-                  setMove(null);
+                  setMove(undefined);
                 }
               }}
               className={`p-3 border text-white rounded ${move === m ? 'bg-blue-500' : 'bg-gray-700'}`}

@@ -18,13 +18,22 @@ interface IJ2GameProps {
 
 const J2Game = ({ game, setGame }: IJ2GameProps) => {
   const { chain } = useAccount();
-  const [move, setMove] = useState<Move | null>(null);
+  // const [move, setMove] = useState<Move | null>(null);
   const { writeContractAsync } = useWriteContract();
   const { gameLastAction, gameTimeout } = useTimer(game.contractAddress);
   const [timeover, setTimeover] = useState(false);
 
+  const setMove = (move: Move | undefined) => {
+    setGame((prevGame) => {
+      return {
+        ...prevGame,
+        move: move,
+      }
+    })
+  }
+
   return (
-    <div className="w-6/12 mt-4 text-3xl flex flex-col items-center justify-center gap-y-8">
+    <div className="w-6/12 mt-4 ml-48 text-3xl flex flex-col items-center justify-center gap-y-8">
       {
         game.status === "waitingJ1Deployment" && (
           <div className="flex flex-col gap-y-4 mt-4 items-center justify-center">
@@ -36,16 +45,16 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
       {
         game.status === "j1Deployed" && (
           <div>
-            <MakeMove move={move} setMove={setMove} />
+            <MakeMove move={game.move} setMove={setMove} />
             <TxButton
               asyncTask={async () => {
-                if (!move) return;
+                if (!game.move) return;
                 if (!game.gameId) return;
                 const txHash = await writeContractAsync({
                   abi: RPSLS.abi,
                   address: game.contractAddress as HexString,
                   functionName: "play",
-                  args: [getMoveNumber(move)],
+                  args: [getMoveNumber(game.move)],
                   value: toRealNumber(
                     game.stake,
                     chain?.nativeCurrency.decimals,
@@ -66,7 +75,7 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           </div>
         )
       }
-      <div>{move && <p className="mt-4">You selected: {move}</p>}</div>
+      <div>{game.move && <p className="mt-4">You selected: {game.move}</p>}</div>
       {
         game.status === "j2Played" && (
           <div>

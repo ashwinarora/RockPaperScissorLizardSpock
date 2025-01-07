@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
 import Topbar from "./components/Topbar"
 import { socket } from './socket';
-import LandingPage from "./components/LandingPage";
+import JoinGame from "./components/JoinGame";
 import CreateNewGame from "./components/CreateNewGame";
 import J1Game from "./components/J1Game";
 import { ServerToClientEvents } from "@kleros-assignment/shared";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import J2Game from "./components/J2Game";
+import { useAccount } from "wagmi";
+import { Move } from "./components/utils";
 
 export type gameJ1 = {
   isThisJ1: true,
-  status: "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
+  status: "reconnect" | "init" | "j2waiting" | "j2joined" | "contractDeployed" | "j1Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   stake: string,
   gameId?: string,
+  move?: Move,
+  salt?: string,
   j2Address?: string,
   contractAddress?: string,
   timedOut?: boolean,
@@ -20,8 +24,9 @@ export type gameJ1 = {
 
 export type gameJ2 = {
   isThisJ1: false,
-  status: "preJoinChecks" | "waitingJ1Deployment" | "j1Deployed" | "j2Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
+  status: "reconnect" | "preJoinChecks" | "waitingJ1Deployment" | "j1Deployed" | "j2Claimed" | "j2Played" | "draw" | "j1Won" | "j2Won",
   gameId?: string,
+  move?: Move,
   stake: string,
   contractAddress?: string,
   solveTx?: string,
@@ -36,27 +41,82 @@ const initState: gameState = {
   stake: ""
 } as const;
 
+const storageKey = "gameState";
+
+const getInitState = (): gameState => {
+  const storedData = localStorage.getItem(storageKey);
+  if(!storedData) return initState;
+  const parsedData = JSON.parse(storedData);
+  if(parsedData.status === "init") return initState;
+  if(parsedData) return {
+    isThisJ1: parsedData.isThisJ1,
+    status: "reconnect",
+    stake: parsedData.stake,
+  }
+  return initState;
+}
+
 const App = () => {
-  const [game, setGame] = useState<gameState>({ ...initState});
+  const [game, setGame] = useState<gameState>(getInitState());
+  const { address } = useAccount();
+
+  const clearStorage = () => {
+    localStorage.removeItem(storageKey);
+  }
+
+  useEffect(() => {
+    if(["preJoinChecks", "j2waiting",  "draw", "j1Won", "j2Won"].includes(game.status)) return clearStorage();
+    if(game.status === "reconnect") return
+    console.log("refreshing storage")
+    const dataToStore = JSON.stringify({...game});
+    localStorage.setItem(storageKey, dataToStore);
+  }, [game])
 
   useEffect(() => {
     const onConnect = () => {
       console.log("connected");
+      if(!address) return;
+      const storedData = localStorage.getItem(storageKey);
+      if(!storedData) return;
+      const parsedData = JSON.parse(storedData);
+      if(parsedData.status === "init") return;
+      if(!parsedData?.gameId) return clearStorage();
+      console.log('reconnecting game', parsedData);
+      socket.emit("reconnectGame", {
+        gameId: parsedData.gameId,
+        playerAddress: address,
+        isPlayer1: parsedData.isThisJ1,
+      });
     }
-    
+
+    const handleReconnect: ServerToClientEvents["reconnectGameSuccess"] = (data) => {
+      if(!data.success) {
+        clearStorage();
+        setGame(initState);
+        return;
+      };
+      const storedData = localStorage.getItem(storageKey);
+      if(!storedData) return;
+      const parsedData = JSON.parse(storedData);
+      setGame(parsedData);
+    }
+  
     const onDisconnect = () => {
       console.log("disconnected");
     }
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
+    socket.on('reconnectGameSuccess', handleReconnect);
+
+    socket.connect()
 
     return () => {
       socket.off('connect', onConnect);
       socket.off('disconnect', onDisconnect);
+      socket.off('reconnectGameSuccess', handleReconnect);
     }
-  }, [])
-
+  }, [address])
 
   useEffect(() => {
     // setting listerns for only player 1
@@ -180,7 +240,7 @@ const App = () => {
       <Topbar />
       {
         game.status === "init" && (<>
-          <LandingPage game={game} setGame={setGame} />
+          <JoinGame game={game} setGame={setGame} />
           <div className="flex my-16 justify-center items-center">
             <hr className="w-1/12 mx-2" />
             <p>Or</p>

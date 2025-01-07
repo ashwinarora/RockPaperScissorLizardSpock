@@ -5,12 +5,12 @@ import { gameJ2, gameState } from "../App";
 import { useAccount } from "wagmi";
 import { useEffect } from "react";
 
-interface ILandingPageProps {
+interface IJoinGamePageProps {
   game: gameState,
   setGame: React.Dispatch<React.SetStateAction<gameState>>
 }
 
-const LandingPage = ({game, setGame}: ILandingPageProps ) => {
+const JoinGamePage = ({game, setGame}: IJoinGamePageProps ) => {
   const { address } = useAccount();
   const { data: joinableGames, refetch } = trpc.joinableGames.useQuery();
 
@@ -74,4 +74,4 @@ const LandingPage = ({game, setGame}: ILandingPageProps ) => {
   );
 };
 
-export default LandingPage;
+export default JoinGamePage;

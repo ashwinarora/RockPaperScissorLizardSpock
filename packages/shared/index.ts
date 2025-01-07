@@ -23,6 +23,9 @@ export interface ServerToClientEvents {
     isTimeout: boolean
     solveTxHash: string;
   }) => void;
+  reconnectGameSuccess: (data: {
+    success: boolean;
+  }) => void;
 
 }
 
@@ -55,5 +58,10 @@ export interface ClientToServerEvents {
     isTimeout: boolean;
     solveTxHash: string;
     gameId: string;
+  }) => void;
+  reconnectGame: (data: {
+    gameId: string;
+    playerAddress: string;
+    isPlayer1: boolean;
   }) => void;
 }

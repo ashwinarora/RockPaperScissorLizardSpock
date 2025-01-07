@@ -6,6 +6,8 @@ class GamesManager {
   private _gamesMap: Map<string, {
     j1SocketId: string,
     j2SocketId: string,
+    isJ1Disconnected?: boolean,
+    isJ2Disconnected?: boolean,
   }> = new Map();
 
   private constructor() {
@@ -40,7 +42,7 @@ class GamesManager {
   }
 
   public async getJoinableGames()  {
-    const minutes = 60
+    const minutes = 10
     const joinableGames = await prisma.game.findMany({
       where: {
         state: "INIT",
@@ -77,13 +79,42 @@ class GamesManager {
     this._gamesMap.set(gameId, { j1SocketId, j2SocketId: "" })
   }
 
-  public async removeGameByJ1SocketId(j1SocketId: string) {
-    const gameId =  Array.from(this._gamesMap.keys()).find(key => this._gamesMap.get(key)?.j1SocketId === j1SocketId)
-    if(gameId) {
-      this._gamesMap.delete(gameId)
-      await this.markGameAsAbandoned(gameId)
+  public handleDisconnect(socketId: string) {
+    for (const [gameId, game] of this._gamesMap) {
+      if (game.j1SocketId === socketId) {
+        game.isJ1Disconnected = true;
+      }
+      if (game.j2SocketId === socketId) {
+        game.isJ2Disconnected = true;
+      }
     }
-    return gameId
+  }
+  
+  public async handleReconnection(data: {gameId: string, playerAddress: string, isPlayer1: boolean, socketId: string}) {
+    const { gameId, playerAddress, isPlayer1, socketId} = data;
+    const status = await prisma.game.findUnique({
+      where: {
+        id: Number(gameId),
+        [isPlayer1 ? "j1Address" : "j2Address"]: playerAddress
+      },
+      select: {
+        state: true,
+      }
+    })
+    if(["INIT", "J1TIMEDOUT", "J2TIMEDOUT", "J1WON", "J2WON", "DRAW"].includes(status?.state || "")) return false
+    const game = this._gamesMap.get(gameId)
+    if(!game) return false
+    if(isPlayer1 && game.isJ1Disconnected) {
+      game.j1SocketId = socketId
+      game.isJ1Disconnected = false
+      return true
+    }
+    if(!isPlayer1 && game.isJ2Disconnected) {
+      game.j2SocketId = socketId
+      game.isJ2Disconnected = false
+      return true
+    }
+    return false
   }
 
   public async markGameAsAbandoned(gameId: string) {
@@ -101,12 +132,13 @@ class GamesManager {
     }
   }
 
+
   public gameExists(gameId: string) {
     const game = this._gamesMap.get(gameId)
     return !!game
   }
 
-  public async addJ2SocketIdToGame({gameId, j2SocketId}: {gameId: string, j2SocketId: string}) {
+  public async addJ2SocketIdToGame({gameId, j2SocketId, j2Address}: {gameId: string, j2SocketId: string, j2Address: string}) {
     const game = this._gamesMap.get(gameId)
     if(game) {
       game.j2SocketId = j2SocketId
@@ -115,7 +147,8 @@ class GamesManager {
           id: Number(gameId)
         },
         data: {
-          state: "J2JOINED"
+          state: "J2JOINED",
+          j2Address: j2Address
         }
       })
     } else {
