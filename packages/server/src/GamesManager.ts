@@ -80,7 +80,7 @@ class GamesManager {
   }
 
   public handleDisconnect(socketId: string) {
-    for (const [gameId, game] of this._gamesMap) {
+    for (const [_gameId, game] of this._gamesMap) {
       if (game.j1SocketId === socketId) {
         game.isJ1Disconnected = true;
       }
