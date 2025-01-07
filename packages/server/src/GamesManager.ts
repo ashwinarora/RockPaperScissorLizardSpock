@@ -174,9 +174,9 @@ class GamesManager {
     let finalState: "J1WON" | "J2WON" | "DRAW" | "J1TIMEDOUT" | "J2TIMEDOUT";
     if (isTimeout) {
       if (winner === 'j1') {
-        finalState = 'J1TIMEDOUT';
-      } else if (winner === 'j2') {
         finalState = 'J2TIMEDOUT';
+      } else if (winner === 'j2') {
+        finalState = 'J1TIMEDOUT';
       } else {
         throw new Error("Invalid winner for timeout");
       }
