@@ -1,4 +1,4 @@
-import prisma  from "./prisma";
+import prisma  from "./prisma.js";
 import { winner } from "@kleros-assignment/shared";
 
 class GamesManager {

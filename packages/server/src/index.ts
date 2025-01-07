@@ -8,7 +8,7 @@ import { JsonRpcProvider } from "ethers";
 import deployedBytecode from "./RPSLS.js";
 import GamesManager from "./GamesManager.js";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import { appRouter } from "./router";
+import { appRouter } from "./router.js";
 import cors from 'cors'
 
 

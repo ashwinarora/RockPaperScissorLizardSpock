@@ -1,5 +1,5 @@
-import GamesManager from "./GamesManager";
-import { router, procedure } from "./trpc";
+import GamesManager from "./GamesManager.js";
+import { router, procedure } from "./trpc.js";
 import { z } from 'zod';
 
 export const appRouter = router({
