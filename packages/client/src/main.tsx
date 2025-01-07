@@ -11,16 +11,20 @@ import { httpBatchLink } from "@trpc/client";
 import { trpc } from "./trpc";
 
 import "./index.css";
-import { baseUrl } from "./socket.ts";
 
 globalThis.Buffer = Buffer;
 
 const queryClient = new QueryClient();
 
+export const url = 
+    import.meta.env.MODE  === 'production'
+    ? "trpc"
+    : 'http://localhost:3000/trpc';
+
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
-      url: baseUrl + "trpc",
+      url: url,
       headers: {
         'Content-Type': 'application/json', // Explicitly set the content type
       },
@@ -28,8 +32,6 @@ const trpcClient = trpc.createClient({
   ],
 });
 
-console.log("baseUrl", baseUrl);
-console.log(baseUrl + "trpc")
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
