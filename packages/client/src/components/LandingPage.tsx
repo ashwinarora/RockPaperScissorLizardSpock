@@ -37,7 +37,7 @@ const LandingPage = ({game, setGame}: ILandingPageProps ) => {
             </tr>
           </thead>
           <tbody>
-            {joinableGames?.map((game, index) => (
+            {joinableGames.map((game, index) => (
               <tr key={index} className="border-t">
                 <td className="px-8 py-2">{game.id}</td>
                 <td className="px-8 py-2">{game.chainId}</td>
