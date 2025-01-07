@@ -92,15 +92,16 @@ io.on("connection", (socket) => {
     if(!gameSockets) return;
     // checking correct contract is deployed
     // currently only checking for bscTestnet chain 97
-    // if(result?.chainId === "97") {
-    //   const bytecode = await bscProvider.getCode(data.contractAddress);
-    //   if(bytecode && bytecode !== deployedBytecode) {
-    //     io.to(data.gameId).emit("gameStatus", {
-    //       status: status,
-    //       j1: j1,
-    //     });
-    //   }
-    // }
+    if(result?.chainId === "97") {
+      const bytecode = await bscProvider.getCode(data.contractAddress);
+      if(bytecode && bytecode !== deployedBytecode) {
+        io.to(data.gameId).emit("gameOver", {
+          winner: "draw",
+          isTimeout: true,
+          solveTxHash: "",
+        });
+      }
+    }
     socket.to(gameSockets.j2SocketId).emit("j1Deployed", {
       contractAddress: data.contractAddress,
     });

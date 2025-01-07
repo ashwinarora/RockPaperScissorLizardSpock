@@ -67,7 +67,6 @@ const App = () => {
   useEffect(() => {
     if(["preJoinChecks", "j2waiting",  "draw", "j1Won", "j2Won"].includes(game.status)) return clearStorage();
     if(game.status === "reconnect") return
-    console.log("refreshing storage")
     const dataToStore = JSON.stringify({...game});
     localStorage.setItem(storageKey, dataToStore);
   }, [game])
