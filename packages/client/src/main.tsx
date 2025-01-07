@@ -28,6 +28,9 @@ const trpcClient = trpc.createClient({
   ],
 });
 
+console.log("baseUrl", baseUrl);
+console.log(baseUrl + "trpc")
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <WagmiProvider config={config}>
