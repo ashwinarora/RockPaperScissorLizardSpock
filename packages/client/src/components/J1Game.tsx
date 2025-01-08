@@ -10,6 +10,7 @@ import { config } from "../wagmi";
 import { socket } from "../socket";
 import useTimer from "./useTimer";
 import Timeout from "./Timeout";
+import { useWatchContractEvent } from 'wagmi'
 
 interface IJ1GameProps {
   game: gameState;
@@ -24,6 +25,7 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
   const [timeover, setTimeover] = useState(false);
   const { gameLastAction, gameTimeout } = useTimer(game.contractAddress);
   const { writeContractAsync } = useWriteContract();
+
 
   const { data: j2Move, refetch: fetchJ2Move } = useReadContract({
     abi: RPSLS.abi,
@@ -47,6 +49,23 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
       }
     }) 
   }, [salt])
+
+ useWatchContractEvent({
+  address: game.contractAddress as HexString,
+  abi: RPSLS.abi,
+  eventName: "j2Played",
+  onLogs: () => {
+    if(game.status === "j2Played") return;
+    console.log("J2 Played")
+    setGame((prevGame) => {
+      if(!prevGame?.isThisJ1) return prevGame;
+      return {
+        ...prevGame,
+        status: "j2Played",
+      }
+    })
+  }
+ })
 
   const setMove = (move: Move | undefined) => {
     setGame((prevGame) => {

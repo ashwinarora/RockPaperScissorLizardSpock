@@ -21,7 +21,12 @@ contract RPS{
     uint256 public TIMEOUT = 5 minutes; // If some party takes more than TIMEOUT to respond, the other can call TIMEOUT to win.
     // uint256 public TIMEOUT = 30 seconds; // If some party takes more than TIMEOUT to respond, the other can call TIMEOUT to win.
     uint256 public lastAction; // The time of the last action. Usefull to determine if someone has timed out.
-    
+
+    event j1Played();
+    event j2Played();
+    event solved(address winner);
+    event timeout(address winner);
+
     /** @dev Constructor. Must send the amount at stake when creating the contract. Note that the move and salt must be saved.
      *  @param _c1Hash Must be equal to keccak256(c1,salt) where c1 is the move of the j1.
      */
@@ -31,6 +36,7 @@ contract RPS{
         j2=_j2;
         c1Hash=_c1Hash;
         lastAction=now;
+        emit j1Played();
     }
     
     /** @dev To be called by j2 and provided stake.
@@ -44,6 +50,7 @@ contract RPS{
             
         c2=_c2;
         lastAction=now;
+        emit j2Played();
     }
     
     /** @dev To be called by j1. Reveal the move and send the ETH to the winning party or split them.
@@ -59,13 +66,18 @@ contract RPS{
         
         // If j1 or j2 throws at fallback it won't get funds and that is his fault.
         // Despite what the warnings say, we should not use transfer as a throwing fallback would be able to block the contract, in case of tie.
-        if (win(_c1,c2))
+        if (win(_c1,c2)){
             j1.send(2*stake);
-        else if (win(c2,_c1))
+            emit solved(j1);
+        }
+        else if (win(c2,_c1)){
             j2.send(2*stake);
+            emit solved(j2);
+        }
         else {
             j1.send(stake);
             j2.send(stake);
+            emit solved(0);
         }
         stake=0;
     }
@@ -77,6 +89,7 @@ contract RPS{
         require(now > lastAction + TIMEOUT); // Timeout time has passed.
         j2.send(2*stake);
         stake=0;
+        emit timeout(j2);
     }
     
     /** @dev Let j1 take back the funds if j2 never play.
@@ -86,6 +99,7 @@ contract RPS{
         require(now > lastAction + TIMEOUT); // Timeout time has passed.
         j1.send(stake);
         stake=0;
+        emit timeout(j1);
     }
     
     /** @dev Is this move winning over the other.
