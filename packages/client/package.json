@@ -10,9 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tanstack/react-query": "5.45.1",
+    "@kleros-assignment/server": "workspace:^",
+    "@tanstack/react-query": "^5.62.15",
+    "@trpc/client": "^11.0.0-rc.682",
+    "@trpc/react-query": "^11.0.0-rc.682",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-toastify": "^11.0.2",
     "socket.io-client": "^4.8.1",
     "viem": "latest",
     "wagmi": "latest"

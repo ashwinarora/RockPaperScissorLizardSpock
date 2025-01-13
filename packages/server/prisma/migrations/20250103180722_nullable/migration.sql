@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Game" ALTER COLUMN "contractAddress" DROP NOT NULL,
+ALTER COLUMN "j2Address" DROP NOT NULL;

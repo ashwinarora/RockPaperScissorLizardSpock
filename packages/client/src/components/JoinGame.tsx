@@ -1,159 +1,77 @@
-import { useAccount, useWriteContract } from "wagmi";
-import { gameJ2 } from "../App";
 import { socket } from "../socket";
-import { useState } from "react";
-import { getMoveNumber, HexString, Move, toRealNumber } from "./utils";
-import { RPSLS } from "@kleros-assignment/contract";
-import MakeMove from "./MakeMove";
-import TxButton from "./TxButton";
-import { waitForTransactionReceipt } from "wagmi/actions";
-import { config } from "../wagmi";
-import useTimer from "./useTimer";
-import Timeout from "./Timeout";
+import { trpc } from "../trpc";
+import { formatDistanceToNow } from "date-fns";
+import { gameJ2, gameState } from "../App";
+import { useAccount } from "wagmi";
+import { useEffect } from "react";
 
-interface IJoinGameProps {
-  game: gameJ2;
-  setGame: (game: gameJ2) => void;
+interface IJoinGamePageProps {
+  game: gameState,
+  setGame: React.Dispatch<React.SetStateAction<gameState>>
 }
 
-const JoinGame = ({ game, setGame }: IJoinGameProps) => {
-  const { address, chain } = useAccount();
-  const [move, setMove] = useState<Move | null>(null);
-  const { writeContractAsync } = useWriteContract();
-  const { gameLastAction, gameTimeout } = useTimer(game.contractAddress);
-  const [timeover, setTimeover] = useState(false);
+const JoinGamePage = ({game, setGame}: IJoinGamePageProps ) => {
+  const { address } = useAccount();
+  const { data: joinableGames, refetch } = trpc.joinableGames.useQuery();
+
+  useEffect(() => {
+    refetch();
+  }, [game])
 
   return (
-    <div className="w-full mt-4 text-3xl flex flex-col items-center justify-center">
-      <div className="flex w-5/12 flex-col items-start justify-center gap-y-6">
-        <div>Join Game</div>
-        <div>
-          Stake: {game.stake} {chain?.nativeCurrency.symbol}
-        </div>
-        {
-          (game.status === "j1Ready" || game.status === "waitingJ1Deployment") &&
-          <button
-            disabled={game.status === "waitingJ1Deployment"}
-            className="bg-blue-500 hover:bg-blue-700 text-white p-3 w-full rounded disabled:bg-gray-400 disabled:cursor-not-allowed"
-            onClick={() => {
-              if(!socket.id) return;
-              if(!address) return;
-              socket.emit("j2Ready", {
-                socketId: socket.id,
-                j2Address: address,
-              });
-              setGame({ ...game, status: "waitingJ1Deployment" });
-            }}
-          >
-            Join Game
-          </button>
-        }
-        {game.status === "waitingJ1Deployment" && (
-          <div className="flex flex-col gap-y-4 mt-4 items-center justify-center">
-            <div>Waiting for j1 to start the game</div>
-            <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
-          </div>
-        )}
-        {game.status === "j1Deployed" && (
-          <div>
-            <MakeMove move={move} setMove={setMove} />
-            <TxButton
-              asyncTask={async () => {
-                if (!move) return;
-                const txHash = await writeContractAsync({
-                  abi: RPSLS.abi,
-                  address: game.contractAddress as HexString,
-                  functionName: "play",
-                  args: [getMoveNumber(move)],
-                  value: toRealNumber(
-                    game.stake,
-                    chain?.nativeCurrency.decimals,
-                  ),
-                });
-                console.log(txHash);
-                await waitForTransactionReceipt(config, {
-                  hash: txHash,
-                });
-                socket.emit("j2Played")
-                setGame({ ...game, status: "j2Played" });
-              }}
-            >
-              Start Game 🎮
-            </TxButton>
-          </div>
-        )}
-        <div>{move && <p className="mt-4">You selected: {move}</p>}</div>
-        {
-          game.status === "j2Played" && (
-            <div>
-              <div className="flex flex-row gap-x-4 my-4 items-center justify-start">
-                <p>Waiting for J1 to Solve</p>
-                <div className=" border-4 border-blue-300  rounded-full w-7 h-7  border-t-white animate-spin"></div>
-              </div>
-              {gameTimeout && gameLastAction && (
-                <Timeout
-                  timeout={gameTimeout?.result as bigint}
-                  lastAction={gameLastAction.result as bigint}
-                  setTimeover={setTimeover}
-                />
-              )}
-              {timeover && (
-                <TxButton
-                  asyncTask={async () => {
-                    const claimTxHash = await writeContractAsync({
-                      abi: RPSLS.abi,
-                      address: game.contractAddress as HexString,
-                      functionName: "j1Timeout",
-                    });
-                    const receipt = await waitForTransactionReceipt(config, {
-                      hash: claimTxHash,
-                    });
-                    if(receipt.status === "success") {
-                      setGame({ ...game, status: "j2Claimed" });
-                      socket.emit("gameOver", {
-                        solveTxHash: receipt.transactionHash,
-                        winner: "j2",
-                        isTimeout: true
+    <div className="w-full h-full flex flex-col text-2xl mt-2 justify-center items-center">
+      <h1>Join a Game</h1>
+      {!joinableGames ||  joinableGames?.length === 0 ? (
+        <p>No available games</p>
+      ) : (
+        <table className="table-auto mt-4">
+          <thead>
+            <tr>
+              <th className="px-8 py-2">Game ID</th>
+              <th className="px-8 py-2">Chain ID</th>
+              <th className="px-8 py-2">Stake</th>
+              <th className="px-8 py-2">Updated At</th>
+              <th className="px-8 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {joinableGames.map((game, index) => (
+              <tr key={index} className="border-t">
+                <td className="px-8 py-2">{game.id}</td>
+                <td className="px-8 py-2">{game.chainId}</td>
+                <td className="px-8 py-2">{game.stake}</td>
+                <td className="px-8 py-2">
+                  {formatDistanceToNow(new Date(game.updatedAt), { addSuffix: true })}
+                </td>
+                <td className="px-8 py-2">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                    onClick={(() => {
+                      if(!address) return;
+                      setGame(() => {
+                        const newState: gameJ2 = {
+                          isThisJ1: false,
+                          status: "preJoinChecks",
+                          stake: game.stake,
+                        }
+                        return newState
                       })
-                    }
-                  }}
-                >
-                  Claim Your Stake
-                </TxButton>
-              )}
-            </div>
-          )
-        }
-        {game.status === "j2Claimed" && (
-          <div className="italic">
-            <p>Game over! J1 timed out. You claimed your stake.</p>
-          </div>
-        )}
-        {
-          game.status === "draw" && (
-            <div className="italic">
-              <p>Game Over! It's a draw!</p>
-            </div>
-          )
-        }
-        {
-          game.status === "j1Won" && (
-            <div className="italic">
-              <p>Game Over! J1 won! You Lost.</p>
-              {game.timedOut && <p>You TimedOut!</p>}
-            </div>
-          )
-        }
-        {
-          game.status === "j2Won" && (
-            <div className="italic">
-              <p>Game Over! You won!</p>
-            </div>
-          )
-        }
-      </div>
+                      socket.emit("joinGame", {
+                        gameId: game.id.toString(),
+                        j2Address: address,
+                      });
+                    })}
+                  >
+                    Join
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
 
-export default JoinGame;
+export default JoinGamePage;

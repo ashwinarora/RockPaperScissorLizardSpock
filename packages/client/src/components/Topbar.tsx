@@ -1,6 +1,6 @@
 import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
 import { toHumanNumber } from "./utils";
-import { socket } from "../socket";
+// import { socket } from "../socket";
 
 const Topbar = () => {
   const { address, isConnected, chain } = useAccount();
@@ -37,14 +37,14 @@ const Topbar = () => {
               >
                 Disconnect
               </button>
-              <button
+              {/* <button
                 className="p-1 bg-orange-600 text-white rounded"
                 onClick={() => {
                   socket.emit("cleanupServer");
                 }}
               >
                 Cleanup Server
-              </button>
+              </button> */}
             </div>
           </div>
         ) : (
@@ -52,7 +52,7 @@ const Topbar = () => {
             className="ml-2 p-1 bg-blue-500 text-white rounded"
             onClick={() => {
               connect({ connector: connectors[0] })
-              socket.emit("statusRequest");
+              // socket.emit("statusRequest");
             }}
           >
             Connect Wallet

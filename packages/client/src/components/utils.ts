@@ -34,14 +34,15 @@ export const toRealNumber = (value: string, decimals: number = 18): bigint => {
   );
 };
 
-export const getMoveNumber = (move: Move | null): number => {
-  if(move === null) return 0;
+export const getMoveNumber = (move: Move | undefined): number => {
+  if(move === undefined) return 0;
   return MOVES.indexOf(move) + 1;
 }
 
-export const getHash = (move: Move, salt: bigint) => {
+export const getHash = (move: Move, salt: string) => {
   const indexOfMove = getMoveNumber(move);
-  const packedData = encodePacked(["uint8", "uint256"], [indexOfMove, salt]);
+  const saltBigint = BigInt(salt);
+  const packedData = encodePacked(["uint8", "uint256"], [indexOfMove, saltBigint]);
   const hash = keccak256(packedData);
   return hash;
 };

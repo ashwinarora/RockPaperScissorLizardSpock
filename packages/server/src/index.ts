@@ -6,6 +6,10 @@ import { Server } from "socket.io";
 import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
 import { JsonRpcProvider } from "ethers";
 import deployedBytecode from "./RPSLS.js";
+import GamesManager from "./GamesManager.js";
+import { createExpressMiddleware } from '@trpc/server/adapters/express';
+import { appRouter } from "./router.js";
+import cors from 'cors'
 
 
 const app = express();
@@ -15,109 +19,113 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
     origin: "http://localhost:5173",
   },
 });
+app.use(cors({ origin: "http://localhost:5173" }))
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientDistPath = join(__dirname, "../../client/dist");
 app.use(express.static(clientDistPath));
 
-type player = {
-  socketId?: string;
-  stake?: string;
-  chainId?: string;
-}
+
+app.use('/trpc',
+  createExpressMiddleware({
+    router: appRouter,
+    createContext: () => ({}), 
+    onError: ({ error }) => {
+      console.error('tRPC error:', error);
+    }
+  })
+)
 
 const bscProvider = new JsonRpcProvider("https://data-seed-prebsc-1-s2.bnbchain.org:8545");
 
-type gameStatus = 'waiting' | 'j1Ready' | 'j2Ready'
+io.on("connection", (socket) => {
+  console.log("a user connected");
 
-let status: gameStatus= 'waiting' 
-let gameContract: string = ""
-
-let j1: player = {}
-let j2: player = {}
-
-const cleanup = () => {
-  console.log("cleaning up server") 
-  status = 'waiting'
-  j1 = {}
-  j2 = {}
-  gameContract = ""
-}
-
-io.on('connection', (socket) => {  
-  socket.on("statusRequest", () => {
-    console.log("status requested")
-    socket.emit("gameStatus", {
-      status: status,
-      j1: j1,
-    })
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+    const gameId = GamesManager.getInstance().handleDisconnect(socket.id)
   })
 
-  socket.on("cleanupServer", () => {
-    cleanup()
-    io.emit("gameStatus", {
-      status: status,
-      j1: j1,
-    })
+  socket.on("reconnectGame", async (data) => {
+    console.log("reconnect attempt")
+    const success = await GamesManager.getInstance().handleReconnection({...data, socketId: socket.id})
+    socket.emit("reconnectGameSuccess", { success })
   })
 
-  socket.on("j1Ready", (data) => {
-    console.log("j1Ready", data);
-    status = 'j1Ready'
-    j1 = {...data}
-    console.log(j1)
-    socket.broadcast.emit("gameStatus", {
-      status: status,
-      j1: j1,
-    });
+  socket.on("newGameCreated", (data) => {
+    const gameId = data.gameId.toString()
+    console.log("new game created", data)
+    socket.join(gameId);
+    GamesManager.getInstance().addGame({ gameId: gameId, j1SocketId: socket.id })
   })
 
-  socket.on("j2Ready", (data) => {
-    if(!j1.socketId) return
-    console.log("j2Ready", data);
-    j2 = {...data}
-    status = 'j2Ready'
-    console.log(j2)
-    socket.to(j1.socketId).emit("j2Ready", {
-      j2Address: data.j2Address,
+  socket.on("joinGame", async (data) => {
+    console.log("joining game", data)
+    const gameId = data.gameId.toString()
+    const roomSize = io.sockets.adapter.rooms.get(gameId)?.size || 0;
+    console.log("roomSize", roomSize)
+    if(!GamesManager.getInstance().gameExists(gameId)){
+      socket.emit("joinGameError", { 
+        error: "Game was Abandoned" 
+      });
+      await GamesManager.getInstance().markGameAsAbandoned(gameId)
+      return;
+    }
+    if(roomSize !== 1) {
+      socket.emit("joinGameError", { 
+        error: "Room is full" 
+      });
+      return;
+    }
+    socket.join(gameId);
+    GamesManager.getInstance().addJ2SocketIdToGame({ gameId: gameId, j2SocketId: socket.id, j2Address: data.j2Address })
+    console.log("starting game ", gameId)
+    io.to(gameId).emit("gameStart", {
+      gameId: gameId,
+      j2Address: data.j2Address
     });
   })
 
   socket.on("contractDeployed", async (data) => {
-    if(!j2.socketId) return
-    gameContract = data.contractAddress
+    const result = await GamesManager.getInstance().setGameContractAddress({ gameId: data.gameId, contractAddress: data.contractAddress })
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
     // checking correct contract is deployed
     // currently only checking for bscTestnet chain 97
-    if(j1.chainId === "97") {
+    if(result?.chainId === "97") {
       const bytecode = await bscProvider.getCode(data.contractAddress);
       if(bytecode && bytecode !== deployedBytecode) {
-        cleanup()
-        io.emit("gameStatus", {
-          status: status,
-          j1: j1,
-        })
+        io.to(data.gameId).emit("gameOver", {
+          winner: "draw",
+          isTimeout: true,
+          solveTxHash: "",
+        });
       }
     }
-    socket.to(j2.socketId).emit("j1Deployed", {
+    socket.to(gameSockets.j2SocketId).emit("j1Deployed", {
       contractAddress: data.contractAddress,
     });
   })
 
-  socket.on("j2Played", () => {
-    socket.to(j1.socketId ?? "").emit("j2Played")
+  socket.on("j2Played", async (data) => {
+    await GamesManager.getInstance().setJ2Played(data.gameId)
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
+    socket.to(gameSockets.j1SocketId).emit("j2Played")
   })
 
   socket.on("gameOver", (data) => {
-    if(j1.socketId === socket.id){
-      socket.to(j2.socketId ?? "").emit("gameOver", data)
-    } else if(j2.socketId === socket.id) {
-      socket.to(j1.socketId ?? "").emit("gameOver", data)
+    const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
+    if(!gameSockets) return;
+    if(gameSockets.j1SocketId === socket.id){
+      socket.to(gameSockets.j2SocketId).emit("gameOver", data)
+    } else if(gameSockets.j2SocketId === socket.id) {
+      socket.to(gameSockets.j1SocketId).emit("gameOver", data)
     }
-    cleanup()
+    GamesManager.getInstance().finalizeGame(data)
   })
 
 });
-
 
 httpServer.listen(3000, () => {
   console.log("server running at http://localhost:3000");
