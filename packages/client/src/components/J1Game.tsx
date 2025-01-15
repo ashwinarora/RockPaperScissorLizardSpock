@@ -4,7 +4,7 @@ import MakeMove from "./MakeMove";
 import { getHash, getMoveNumber, getRandomSalt, getWinner, HexString, Move, toRealNumber } from "./utils";
 import TxButton from "./TxButton";
 import { useAccount, useDeployContract, useReadContract, useWriteContract } from "wagmi";
-import { RPSLS } from "@kleros-assignment/contract";
+import { RPSLS } from "@rpsls/contract";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "../wagmi";
 import { socket } from "../socket";
@@ -77,7 +77,7 @@ const J1Game = ({game, setGame}: IJ1GameProps) => {
   }
 
   return (
-    <div>
+    <div className="w-6/12 mx-auto text-xl">
       {
         game.status === "j2waiting" && (
           <div className="flex flex-col items-center justify-center gap-y-4">

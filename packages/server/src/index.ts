@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { Server } from "socket.io";
-import { ClientToServerEvents, ServerToClientEvents } from "@kleros-assignment/shared"
+import { ClientToServerEvents, ServerToClientEvents } from "@rpsls/shared"
 import { JsonRpcProvider } from "ethers";
 import deployedBytecode from "./RPSLS.js";
 import GamesManager from "./GamesManager.js";

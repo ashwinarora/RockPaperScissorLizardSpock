@@ -1,13 +1,13 @@
 {
-  "name": "kleros-assignment",
+  "name": "rpsls",
   "packageManager": "yarn@4.5.3",
   "scripts": {
-    "compileContracts": "yarn workspace @kleros-assignment/contract compile",
-    "client:dev": "yarn workspace @kleros-assignment/client dev",
-    "client:build": "yarn workspace @kleros-assignment/client build",
-    "server:dev": "yarn workspace @kleros-assignment/server dev",
-    "server:start": "yarn workspace @kleros-assignment/server start",
-    "server:build": "yarn workspace @kleros-assignment/server build",
+    "compileContracts": "yarn workspace @rpsls/contract compile",
+    "client:dev": "yarn workspace @rpsls/client dev",
+    "client:build": "yarn workspace @rpsls/client build",
+    "server:dev": "yarn workspace @rpsls/server dev",
+    "server:start": "yarn workspace @rpsls/server start",
+    "server:build": "yarn workspace @rpsls/server build",
     "start": "yarn compileContracts && yarn client:build && yarn server:build && yarn server:start"
   },
   "workspaces": [

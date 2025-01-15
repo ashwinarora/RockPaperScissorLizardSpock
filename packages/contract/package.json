@@ -1,5 +1,5 @@
 {
-  "name": "@kleros-assignment/contract",
+  "name": "@rpsls/contract",
   "packageManager": "yarn@4.5.3",
   "scripts": {
     "compile": "hardhat compile"

@@ -4,7 +4,7 @@ import { socket } from './socket';
 import JoinGame from "./components/JoinGame";
 import CreateNewGame from "./components/CreateNewGame";
 import J1Game from "./components/J1Game";
-import { ServerToClientEvents } from "@kleros-assignment/shared";
+import { ServerToClientEvents } from "@rpsls/shared";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import J2Game from "./components/J2Game";
 import { useAccount } from "wagmi";

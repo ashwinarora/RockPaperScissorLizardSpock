@@ -1,6 +1,6 @@
 import { useReadContracts } from 'wagmi';
 import { HexString } from './utils';
-import { RPSLS } from "@kleros-assignment/contract";
+import { RPSLS } from "@rpsls/contract";
 
 const useTimer = (contractAddress: string | undefined) => {
   const { data: contractData } = useReadContracts({

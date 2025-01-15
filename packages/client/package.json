@@ -1,5 +1,5 @@
 {
-  "name": "@kleros-assignment/client",
+  "name": "@rpsls/client",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@kleros-assignment/server": "workspace:^",
+    "@rpsls/server": "workspace:^",
     "@tanstack/react-query": "^5.62.15",
     "@trpc/client": "^11.0.0-rc.682",
     "@trpc/react-query": "^11.0.0-rc.682",
