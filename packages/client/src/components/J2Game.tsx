@@ -4,7 +4,7 @@ import MakeMove from "./MakeMove";
 import { getMoveNumber, HexString, Move, toRealNumber } from "./utils";
 import TxButton from "./TxButton";
 import { useAccount, useWriteContract } from "wagmi";
-import { RPSLS } from "@kleros-assignment/contract";
+import { RPSLS } from "@rpsls/contract";
 import { waitForTransactionReceipt } from "wagmi/actions";
 import { config } from "../wagmi";
 import { socket } from "../socket";
@@ -33,7 +33,7 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
   }
 
   return (
-    <div className="w-6/12 mt-4 ml-48 text-3xl flex flex-col items-center justify-center gap-y-8">
+    <div className="w-6/12 mt-4 mx-auto text-3xl flex flex-col items-center justify-center gap-y-8">
       {
         game.status === "waitingJ1Deployment" && (
           <div className="flex flex-col gap-y-4 mt-4 items-center justify-center">

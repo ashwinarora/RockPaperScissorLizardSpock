@@ -1,5 +1,5 @@
 {
-  "name": "@kleros-assignment/server",
+  "name": "@rpsls/server",
   "packageManager": "yarn@4.5.3",
   "dependencies": {
     "@prisma/client": "^6.1.0",

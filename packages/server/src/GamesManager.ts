@@ -1,5 +1,5 @@
 import prisma  from "./prisma.js";
-import { winner } from "@kleros-assignment/shared";
+import { winner } from "@rpsls/shared";
 
 class GamesManager {
   private static instance: GamesManager;
