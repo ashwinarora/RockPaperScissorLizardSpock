@@ -14,7 +14,7 @@ const CreateNewGame = ({ game, setGame }: INewGameProps) => {
 
   return (
     <>
-      <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 shadow-lg max-w-4xl mx-auto">
+      <div className="bg-slate-900/50 border border-slate-800 rounded-lg p-4 shadow-lg max-w-5xl mx-auto">
         {/* Card Header */}
         <div className="mb-4">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-white">

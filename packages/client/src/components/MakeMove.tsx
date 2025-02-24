@@ -46,27 +46,29 @@ const MakeMove = ({ move, setMove }: IMakeMoveProps) => {
     //     })}
     //   </div>
     // </div>
-    <main className="container mx-auto px-4 py-12">
+    <main className="container mx-auto md:px-4 py-12">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="text-3xl font-bold mb-8 text-slate-100">
+        <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-slate-100">
           Choose your move!
         </h2>
 
-        <div className="grid grid-cols-5 gap-4 mb-8">
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
           {MOVES.map((m) => {
             const Icon = moveIcons[m]; // Dynamically select the icon
             return (
               <button
                 key={m}
                 onClick={() => setMove(move !== m ? m : undefined)}
-                className={`p-4 rounded-lg border flex flex-col items-center gap-2 transition-transform hover:scale-110 ${
+                className={`p-3 sm:p-4 rounded-lg border flex flex-col items-center gap-2 transition-transform hover:scale-110 ${
                   move === m
                     ? "bg-blue-600 text-white border-blue-400"
                     : "bg-white text-gray-900 border-gray-600"
                 }`}
               >
-                <Icon className="w-8 h-8" />
-                <span>{m}</span>
+                {/* Icon with responsive size */}
+                <Icon className="w-6 h-6 sm:w-8 sm:h-8" />
+                <span className="text-xs sm:text-sm">{m}</span>
               </button>
             );
           })}
