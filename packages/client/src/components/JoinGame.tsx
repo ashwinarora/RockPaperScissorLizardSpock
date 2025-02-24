@@ -1,7 +1,7 @@
 import { socket } from "../socket";
 import { trpc } from "../trpc";
 import { formatDistanceToNow } from "date-fns";
-import { gameJ2, gameState } from "../App";
+import { gameState } from "../App";
 import { useAccount } from "wagmi";
 import { useEffect } from "react";
 import { IoGameController } from "react-icons/io5";
