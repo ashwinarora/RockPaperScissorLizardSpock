@@ -91,9 +91,22 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
   return (
     <div className="w-6/12 mx-auto text-xl">
       {game.status === "j2waiting" && (
-        <div className="flex flex-col items-center justify-center gap-y-4">
-          <div>Waiting for player 2 to join</div>
-          <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
+        // <div className="flex flex-col items-center justify-center gap-y-4">
+        //   <div>Waiting for player 2 to join</div>
+        //   <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
+        // </div>
+        <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8">
+          <div className="flex flex-col items-center mb-4 gap-16">
+            <div>
+              <img src="assests/loading.gif" alt="" />
+            </div>
+            <div>
+              <p className="text-3xl">
+                Waiting for <span className="text-[#089BFB]">player 2</span> to
+                join
+              </p>
+            </div>
+          </div>
         </div>
       )}
       {game.status === "j2joined" && (

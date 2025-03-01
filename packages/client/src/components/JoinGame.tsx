@@ -4,7 +4,6 @@ import { formatDistanceToNow } from "date-fns";
 import { gameState } from "../App";
 import { useAccount } from "wagmi";
 import { useEffect } from "react";
-import { IoGameController } from "react-icons/io5";
 interface IJoinGamePageProps {
   game: gameState;
   setGame: React.Dispatch<React.SetStateAction<gameState>>;
@@ -19,25 +18,27 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
   }, [game]);
 
   return (
-    <div className="w-full h-full flex flex-col text-2xl mt-2 bg-slate-900/50 border border-slate-800 rounded-2xl shadow-lg p-6 max-w-5xl mx-auto">
-      <div className="mb-6">
-        <h2 className="flex items-center gap-2 text-2xl font-semibold text-white">
-          <IoGameController className="h-6 w-6 text-blue-400" />
-          Join a Game
-        </h2>
-        <p className="text-slate-400 text-base">
-          Join an existing game or create your own
+    <div className="w-full max-w-5xl bg-[#0A183A] rounded-xl p-6 flex flex-col items-centerr  shadow-lg  mx-auto border border-[#089BFB]">
+      <div className="w-full max-w-5xl bg-[#0A183A]rounded-xl p-6 py-5 flex flex-col items-center">
+        <div className="mb-4">
+          <img src="assests/gamebar.svg" alt="" />
+        </div>
+        <h2 className="text-3xl font-bold text-[#0e90ff] mb-2">Join a Game</h2>
+        <p className="text-gray-300 mb-8">
+          Join an existing game or create Your own New game
         </p>
       </div>
 
       {!joinableGames || joinableGames?.length === 0 ? (
-        <div className="text-center py-6">
-          <p className="text-slate-400">No available games</p>
+        <div className="w-full bg-slate-950 border border-blue-900  rounded-3xl p-4 text-center">
+          <p className="text-[#0898FB] text-xl opacity-1 font-semibold rounded ">
+            No Games Available
+          </p>
         </div>
       ) : (
-        <div className="rounded-lg shadow-inner">
-          <table className="w-full min-w-0 table-fixed border-collapse bg-slate-800 rounded-lg">
-            <thead className="bg-slate-700 text-slate-300 uppercase text-xs sm:text-sm">
+        <div className="rounded-3xl shadow-inner overflow-hidden border border-blue-900 mx-12">
+          <table className="w-full min-w-0 table-auto bg-slate-800 rounded-3xl  ">
+            <thead className="bg-[#0A183A] text-slate-300 uppercase text-xs sm:text-sm rounded-3xl">
               <tr>
                 <th className="px-4 py-2">Game ID</th>
                 <th className="px-4 py-2">Chain ID</th>
@@ -50,7 +51,7 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
               {joinableGames.map((game, index: any) => (
                 <tr
                   key={index}
-                  className="border-b border-slate-700 hover:bg-slate-700 transition duration-200"
+                  className="border-b bg-slate-950 border-slate-700  transition duration-200"
                 >
                   <td className="px-2 py-3 text-center text-white text-sm sm:text-base">
                     {game.id}
@@ -68,7 +69,7 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
-                      className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-sm sm:text-base"
+                      className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-sm sm:text-base"
                       onClick={() => {
                         if (!address) return;
                         setGame(() => ({

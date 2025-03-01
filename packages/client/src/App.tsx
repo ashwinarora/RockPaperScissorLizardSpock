@@ -272,10 +272,10 @@ const App = () => {
       {game.status === "init" && (
         <>
           <JoinGame game={game} setGame={setGame} />
-          <div className="flex my-16 justify-center items-center">
-            <hr className="w-1/12 mx-2" />
-            <p>Or</p>
-            <hr className="w-1/12 mx-2" />
+          <div className="flex my-6 justify-center items-center">
+            <hr className="w-80 mx-2" />
+            <p className=" text-[#089BFB] font-semibold text-3xl">OR</p>
+            <hr className="w-80 mx-2 text-slate-900" />
           </div>
           <CreateNewGame game={game} setGame={setGame} />
         </>
