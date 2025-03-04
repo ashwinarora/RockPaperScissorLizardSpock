@@ -33,15 +33,24 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
   };
 
   return (
-    <div className="w-6/12 mt-4 mx-auto text-3xl flex flex-col items-center justify-center gap-y-8">
+    <div className="w-8/12 mt-4 mx-auto text-xl ">
       {game.status === "waitingJ1Deployment" && (
-        <div className="flex flex-col gap-y-4 mt-4 items-center justify-center">
-          <div>Waiting for j1 to start the game</div>
-          <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
+        <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8">
+          <div className="flex flex-col items-center mb-4 gap-16">
+            <div>
+              <img src="assests/loading.gif" alt="" />
+            </div>
+            <div>
+              <p className="text-3xl">
+                Waiting for <span className="text-[#089BFB]">player 1</span> to
+                start the game
+              </p>
+            </div>
+          </div>
         </div>
       )}
       {game.status === "j1Deployed" && (
-        <div>
+        <div className="bg-[#0A183A] rounded-3xl px-16 py-16 mt-10 max-w-6xl text-center border border-[#2563EB]">
           <MakeMove move={game.move} setMove={setMove} />
           <TxButton
             asyncTask={async () => {
@@ -66,17 +75,31 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           >
             Start Game 🎮
           </TxButton>
+          <div className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl">
+            {game.move && <p className="mt-4">You selected: {game.move}</p>}
+          </div>
         </div>
       )}
-      <div>
-        {game.move && <p className="mt-4">You selected: {game.move}</p>}
-      </div>
+
       {game.status === "j2Played" && (
-        <div>
-          <div className="flex flex-row gap-x-4 my-4 items-center justify-start">
-            <p>Waiting for J1 to Solve</p>
-            <div className=" border-4 border-blue-300  rounded-full w-7 h-7  border-t-white animate-spin"></div>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB]">
+          <p className="mt-4 w-6/12 m-auto flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 pb-2 bg-slate-950 text-white rounded-xl">
+            {game.move && <p className="mt-4">You selected: {game.move}</p>}
+          </p>
+          <div className="flex  items-center justify-center ">
+            <img
+              className="w-24 h-24 text-center"
+              src="assests/loading.gif"
+              alt=""
+            />
           </div>
+          <div className="flex flex-row gap-x-4 my-4 items-center justify-center">
+            <p>
+              Waiting for <span className="text-[#089BFB]">Player 1</span> to
+              Solve
+            </p>
+          </div>
+
           {gameTimeout && gameLastAction && (
             <Timeout
               timeout={gameTimeout?.result as bigint}
@@ -131,14 +154,51 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
         </div>
       )}
       {game.status === "j1Won" && (
-        <div className="italic">
-          <p>Game Over! J1 won! You Lost.</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="text-[#089BFB] text-3xl">Game Over!</p>
+          </div>
+          <div className="text-3xl"> Player 1 won! .</div>
+          <div className="text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+            You Lost.
+          </div>
           {game.timedOut && <p>You TimedOut!</p>}
         </div>
       )}
       {game.status === "j2Won" && (
-        <div className="italic">
-          <p>Game Over! You won!</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="text-[#089BFB] text-3xl">Game Over!</p>
+          </div>
+          <div className="relative flex justify-center items-center text-3xl font-bold text-white">
+            <img
+              src="assests/won.svg"
+              alt="You Won!"
+              className="max-w-64 h-auto"
+            />
+            <span className=" absolute text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+              You Won!
+            </span>
+          </div>
+          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+            Play Again!
+          </button>
         </div>
       )}
     </div>

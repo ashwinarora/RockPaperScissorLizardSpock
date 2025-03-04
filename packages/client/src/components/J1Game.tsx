@@ -89,7 +89,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
   };
 
   return (
-    <div className="w-6/12 mx-auto text-xl">
+    <div className="w-8/12 mx-auto text-xl">
       {game.status === "j2waiting" && (
         // <div className="flex flex-col items-center justify-center gap-y-4">
         //   <div>Waiting for player 2 to join</div>
@@ -110,7 +110,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j2joined" && (
-        <div>
+        <div className="bg-[#061636] rounded-3xl p-8 w-full max-w-4xl text-center">
           <MakeMove move={game.move} setMove={setMove} />
           <TxButton
             asyncTask={async () => {
@@ -151,19 +151,33 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
               }
             }}
           >
-            Start Game 🎮
+            Let's Play
           </TxButton>
+          <div>
+            {game.move && (
+              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected: {game.move}
+              </p>
+            )}
+          </div>
         </div>
       )}
-      <div>
-        {game.move && <p className="mt-4">You selected: {game.move}</p>}
-      </div>
+
       {game.status === "contractDeployed" && (
-        <div>
-          <p>Game started! Contract deployed at: {game.contractAddress}</p>
-          <div className="flex flex-row gap-x-4 my-4 items-center justify-start">
-            <p>Waiting for J2 to play</p>
-            <div className=" border-4 border-blue-300  rounded-full w-7 h-7  border-t-white animate-spin"></div>
+        <div className="bg-[#0A183A] rounded-3xl px-16 py-16 mt-10 max-w-6xl text-center border border-[#2563EB]">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected: {game.move}
+              </p>
+            )}
+          </div>
+          <div className="flex  items-center justify-center ">
+            <img
+              className="w-24 h-24 text-center"
+              src="assests/loading.gif"
+              alt=""
+            />
           </div>
           {gameTimeout && gameLastAction && (
             <Timeout
@@ -172,6 +186,16 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
               setTimeover={setTimeover}
             />
           )}
+          <div className="flex flex-row gap-x-4 my-4 items-center justify-center ">
+            <p>
+              Waiting for <span className="text-[#089BFB]">player 2</span> to
+              play
+            </p>
+          </div>
+          <p className="text-center">
+            <span className="text-[#089BFB]">Game started! </span> Contract
+            deployed at: {game.contractAddress}
+          </p>
           {timeover && (
             <TxButton
               asyncTask={async () => {
@@ -206,51 +230,62 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j2Played" && (
-        <div className="w-full">
-          <p>J2 has Played!</p>
-          <TxButton
-            asyncTask={async () => {
-              if (!game.gameId) return;
-              if (!game.isThisJ1) return;
-              if (!game.salt) return;
-              try {
-                const solveTxHash = await writeContractAsync({
-                  abi: RPSLS.abi,
-                  address: game.contractAddress as HexString,
-                  functionName: "solve",
-                  args: [getMoveNumber(game.move), BigInt(game.salt)],
-                });
-                const j1MoveNumber = getMoveNumber(game.move);
-                const j2MoveNumber = Number(j2Move);
-                console.log(j1MoveNumber, j2MoveNumber);
-                const winner = getWinner(j1MoveNumber, j2MoveNumber);
-                const recepit = await waitForTransactionReceipt(config, {
-                  hash: solveTxHash,
-                });
-                if (recepit.status === "success") {
-                  socket.emit("gameOver", {
-                    solveTxHash: recepit.transactionHash,
-                    winner: winner,
-                    isTimeout: false,
-                    gameId: game.gameId,
+        <div className="bg-[#061636] rounded-3xl p-20 w-full max-w-4xl text-center mt-16 border border-[#2563EB]">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected: {game.move}
+              </p>
+            )}
+          </div>
+          <p className="mt-4 text-2xl">
+            <span className="text-[#089BFB]">Player 2</span> has Played!
+          </p>
+          <div className="mt-28">
+            <TxButton
+              asyncTask={async () => {
+                if (!game.gameId) return;
+                if (!game.isThisJ1) return;
+                if (!game.salt) return;
+                try {
+                  const solveTxHash = await writeContractAsync({
+                    abi: RPSLS.abi,
+                    address: game.contractAddress as HexString,
+                    functionName: "solve",
+                    args: [getMoveNumber(game.move), BigInt(game.salt)],
                   });
-                  setGame({
-                    ...game,
-                    status:
-                      winner === "draw"
-                        ? "draw"
-                        : winner === "j1"
-                          ? "j1Won"
-                          : "j2Won",
+                  const j1MoveNumber = getMoveNumber(game.move);
+                  const j2MoveNumber = Number(j2Move);
+                  console.log(j1MoveNumber, j2MoveNumber);
+                  const winner = getWinner(j1MoveNumber, j2MoveNumber);
+                  const recepit = await waitForTransactionReceipt(config, {
+                    hash: solveTxHash,
                   });
+                  if (recepit.status === "success") {
+                    socket.emit("gameOver", {
+                      solveTxHash: recepit.transactionHash,
+                      winner: winner,
+                      isTimeout: false,
+                      gameId: game.gameId,
+                    });
+                    setGame({
+                      ...game,
+                      status:
+                        winner === "draw"
+                          ? "draw"
+                          : winner === "j1"
+                            ? "j1Won"
+                            : "j2Won",
+                    });
+                  }
+                } catch (error) {
+                  console.log(error);
                 }
-              } catch (error) {
-                console.log(error);
-              }
-            }}
-          >
-            Solve Game
-          </TxButton>
+              }}
+            >
+              Solve Game
+            </TxButton>
+          </div>
         </div>
       )}
       {game.status === "draw" && (
@@ -264,8 +299,26 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j2Won" && (
-        <div className="italic">
-          <p>Game Over! J2 won! You Lost.</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="text-[#089BFB] text-3xl">Game Over!</p>
+          </div>
+          <div className="text-3xl"> Player 2 won! .</div>
+          <div className="text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+            You Lost.
+          </div>
+          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+            Play Again!
+          </button>
+          {/* <TxButton>Play Again!</TxButton> */}
           {game.timedOut && <p>You TimedOut!</p>}
         </div>
       )}
