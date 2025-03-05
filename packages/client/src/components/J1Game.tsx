@@ -110,7 +110,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j2joined" && (
-        <div className="bg-[#061636] rounded-3xl p-8 w-full max-w-4xl text-center">
+        <div className="bg-[#061636] rounded-3xl p-8 w-full max-w-4xl text-center flex flex-col items-center border border-[#2563EB]">
           <MakeMove move={game.move} setMove={setMove} />
           <TxButton
             asyncTask={async () => {
@@ -153,10 +153,13 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           >
             Let's Play
           </TxButton>
-          <div>
+          <div className="mt-4 w-6/12">
             {game.move && (
-              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
-                You selected: {game.move}
+              <p className=" flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB] font-semibold">
+                  {game.move}
+                </span>
               </p>
             )}
           </div>
@@ -289,13 +292,40 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "draw" && (
-        <div className="italic">
-          <p>Game Over! It's a draw!</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <p>
+            {" "}
+            <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
+          </p>
+          <p className="text-2xl">It's a draw!</p>
         </div>
       )}
       {game.status === "j1Won" && (
-        <div className="italic">
-          <p>Game Over! You won!</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div>
+            <p className="text-[#089BFB] text-3xl">Game Over!</p>
+          </div>
+          <div className="relative flex justify-center items-center text-3xl font-bold text-white">
+            <img
+              src="assests/won.svg"
+              alt="You Won!"
+              className="max-w-64 h-auto"
+            />
+            <span className=" absolute text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+              You Won!
+            </span>
+          </div>
+          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+            Play Again!
+          </button>
         </div>
       )}
       {game.status === "j2Won" && (

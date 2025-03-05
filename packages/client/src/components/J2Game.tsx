@@ -50,7 +50,7 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
         </div>
       )}
       {game.status === "j1Deployed" && (
-        <div className="bg-[#0A183A] rounded-3xl px-16 py-16 mt-10 max-w-6xl text-center border border-[#2563EB]">
+        <div className="bg-[#0A183A] rounded-3xl px-16 py-16 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col justify-center items-center">
           <MakeMove move={game.move} setMove={setMove} />
           <TxButton
             asyncTask={async () => {
@@ -73,10 +73,17 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
               setGame({ ...game, status: "j2Played" });
             }}
           >
-            Start Game 🎮
+            Let's Play
           </TxButton>
-          <div className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl">
-            {game.move && <p className="mt-4">You selected: {game.move}</p>}
+          <div className="mt-4 w-6/12">
+            {game.move && (
+              <p className=" flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB] font-semibold">
+                  {game.move}
+                </span>
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -144,13 +151,19 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
         </div>
       )}
       {game.status === "j2Claimed" && (
-        <div className="italic">
-          <p>Game over! J1 timed out. You claimed your stake.</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <p className="text-2xl">
+            Game over! J1 timed out. You claimed your stake.
+          </p>
         </div>
       )}
       {game.status === "draw" && (
-        <div className="italic">
-          <p>Game Over! It's a draw!</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <p>
+            {" "}
+            <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
+          </p>
+          <p className="text-2xl">It's a draw!</p>
         </div>
       )}
       {game.status === "j1Won" && (
