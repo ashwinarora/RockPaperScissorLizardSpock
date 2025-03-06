@@ -27,7 +27,7 @@ const Topbar = () => {
   return (
     <div className="min-h-28 bg-gradient-to-b from-slate-950 to-slate-950 text-slate-50 ">
       <header className="border-b border-slate-800 bg-[#0A193A] backdrop-blur-sm fixed w-full z-10">
-        <div className="container flex  items-center justify-between p-4 lg:p-5 gap-4">
+        <div className="w-full flex   items-center justify-between p-4 lg:p-5 gap-4">
           {/* Logo & Title */}
           <div className="flex items-center gap-2">
             {/* <LiaHandScissorsSolid className="h-6 w-6 text-blue-400" /> */}
