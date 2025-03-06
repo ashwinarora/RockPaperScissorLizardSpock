@@ -6,11 +6,11 @@ interface IMakeMoveProps {
 }
 
 const moveImages: Record<Move, string> = {
-  Rock: "/assests/rock2.svg",
-  Paper: "/assests/paper.svg",
-  Scissors: "/assests/scissors.svg",
-  Spock: "/assests/spock.png",
-  Lizard: "/assests/lizard.svg",
+  Rock: "/assets/rock2.svg",
+  Paper: "/assets/paper.svg",
+  Scissors: "/assets/scissors.svg",
+  Spock: "/assets/spock.png",
+  Lizard: "/assets/lizard.svg",
 };
 
 const MakeMove = ({ move, setMove }: IMakeMoveProps) => {

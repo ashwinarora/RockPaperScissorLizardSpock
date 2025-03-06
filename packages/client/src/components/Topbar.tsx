@@ -32,7 +32,7 @@ const Topbar = () => {
           <div className="flex items-center gap-2">
             {/* <LiaHandScissorsSolid className="h-6 w-6 text-blue-400" /> */}
             <img
-              src="/assests/rock.svg
+              src="/assets/rock.svg
               "
               alt="Rock Logo"
               className="w-8 h-8 object-contain "

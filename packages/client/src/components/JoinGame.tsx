@@ -21,7 +21,7 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
     <div className="w-full max-w-5xl bg-[#0A183A] rounded-xl p-6 flex flex-col items-centerr  shadow-lg  mx-auto border border-[#089BFB]">
       <div className="w-full max-w-5xl bg-[#0A183A]rounded-xl p-6 py-5 flex flex-col items-center">
         <div className="mb-4">
-          <img src="/assests/gamebar.svg" alt="" />
+          <img src="/assets/gamebar.svg" alt="" />
         </div>
         <h2 className="text-3xl font-bold text-[#0e90ff] mb-2">Join a Game</h2>
         <p className="text-gray-300 mb-8">
