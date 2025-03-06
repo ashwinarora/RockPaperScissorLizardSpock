@@ -98,7 +98,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8">
           <div className="flex flex-col items-center mb-4 gap-16">
             <div>
-              <img src="assests/loading.gif" alt="" />
+              <img src="/assests/loading.gif" alt="" />
             </div>
             <div>
               <p className="text-3xl">
@@ -178,7 +178,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           <div className="flex  items-center justify-center ">
             <img
               className="w-24 h-24 text-center"
-              src="assests/loading.gif"
+              src="/assests/loading.gif"
               alt=""
             />
           </div>
@@ -315,7 +315,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           </div>
           <div className="relative flex justify-center items-center text-3xl font-bold text-white">
             <img
-              src="assests/won.svg"
+              src="/assests/won.svg"
               alt="You Won!"
               className="max-w-64 h-auto"
             />

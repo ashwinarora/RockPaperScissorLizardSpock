@@ -17,7 +17,7 @@ const CreateNewGame = ({ game, setGame }: INewGameProps) => {
       <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-8 flex flex-col items-center mb-8">
         <div className="flex flex-col items-center mb-4">
           <div className="mb-4 bg-[#0c1b36] rounded-full p-0">
-            <img src="assests/plus.svg" className="w-8 h-8" alt="plus" />
+            <img src="/assests/plus.svg" className="w-8 h-8" alt="plus" />
           </div>
           <h2 className="text-3xl font-bold text-[#0e90ff] mb-2">
             Create a New Game
