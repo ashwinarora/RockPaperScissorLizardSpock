@@ -346,15 +346,19 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
               You Won!
             </span>
           </div>
-          {/* <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
             <p className="text-2xl">
               Stake Amount:{" "}
               <span className="text-[#089BFB] font-semibold">
                 {2 * Number(game?.stake || 0)}
               </span>
             </p>
-          </div>{" "} */}
-          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+          </div>{" "}
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
             Play Again!
           </button>
         </div>

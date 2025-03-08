@@ -215,6 +215,13 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
               <span className="text-[#089BFB] font-semibold">0</span>
             </p>
           </div>{" "}
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
+            Play Again!
+          </button>
           {game.timedOut && <p>You TimedOut!</p>}
         </div>
       )}
