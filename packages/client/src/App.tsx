@@ -9,6 +9,7 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 import J2Game from "./components/J2Game";
 import { useAccount } from "wagmi";
 import { Move } from "./components/utils";
+import Footer from "./components/Footer";
 // prathmesh test
 
 export type gameJ1 = {
@@ -299,6 +300,7 @@ const App = () => {
         theme="light"
         transition={Bounce}
       />
+      <Footer />
     </div>
   );
 };

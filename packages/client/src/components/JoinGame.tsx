@@ -10,7 +10,7 @@ interface IJoinGamePageProps {
 }
 
 const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { data: joinableGames, refetch } = trpc.joinableGames.useQuery();
 
   useEffect(() => {
@@ -71,6 +71,7 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
                     <button
                       className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg text-sm sm:text-base"
                       onClick={() => {
+                        if (!isConnected) return;
                         if (!address) return;
                         setGame(() => ({
                           isThisJ1: false,
@@ -82,8 +83,9 @@ const JoinGamePage = ({ game, setGame }: IJoinGamePageProps) => {
                           j2Address: address,
                         });
                       }}
+                      disabled={!isConnected} // Disable if not connected
                     >
-                      Join
+                      {isConnected ? "Join" : "Connect Wallet"}
                     </button>
                   </td>
                 </tr>

@@ -89,12 +89,8 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
   };
 
   return (
-    <div className="w-8/12 mx-auto text-xl">
+    <div className="w-9/12 mx-auto text-xl flex justify-center ">
       {game.status === "j2waiting" && (
-        // <div className="flex flex-col items-center justify-center gap-y-4">
-        //   <div>Waiting for player 2 to join</div>
-        //   <div className="mr-3 border-4 border-blue-300 rounded-full w-24 h-24  border-t-white animate-spin"></div>
-        // </div>
         <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8">
           <div className="flex flex-col items-center mb-4 gap-16">
             <div>
@@ -112,6 +108,15 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
       {game.status === "j2joined" && (
         <div className="bg-[#061636] rounded-3xl p-8 w-full max-w-4xl text-center flex flex-col items-center border border-[#2563EB]">
           <MakeMove move={game.move} setMove={setMove} />
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
           <TxButton
             asyncTask={async () => {
               if (!game.move) return;
@@ -174,6 +179,15 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
                 You selected: {game.move}
               </p>
             )}
+          </div>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB] mt-4">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
           </div>
           <div className="flex  items-center justify-center ">
             <img
@@ -244,6 +258,15 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           <p className="mt-4 text-2xl">
             <span className="text-[#089BFB]">Player 2</span> has Played!
           </p>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB] mt-8">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
           <div className="mt-28">
             <TxButton
               asyncTask={async () => {
@@ -301,10 +324,10 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j1Won" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 w-9/12 text-center border border-[#2563EB] flex flex-col gap-6">
           <div className="flex justify-center">
             {game.move && (
-              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+              <p className="mt-4 w-9/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
                 You selected:{" "}
                 <span className="text-[#089BFB]">{game.move}</span>
               </p>
@@ -323,16 +346,24 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
               You Won!
             </span>
           </div>
+          {/* <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold">
+                {2 * Number(game?.stake || 0)}
+              </span>
+            </p>
+          </div>{" "} */}
           <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
             Play Again!
           </button>
         </div>
       )}
       {game.status === "j2Won" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 w-9/12 text-center border border-[#2563EB] flex flex-col gap-6">
           <div className="flex justify-center">
             {game.move && (
-              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
                 You selected:{" "}
                 <span className="text-[#089BFB]">{game.move}</span>
               </p>
@@ -345,10 +376,19 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           <div className="text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
             You Lost.
           </div>
-          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold">0</span>
+            </p>
+          </div>{" "}
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
             Play Again!
           </button>
-          {/* <TxButton>Play Again!</TxButton> */}
           {game.timedOut && <p>You TimedOut!</p>}
         </div>
       )}

@@ -30,7 +30,6 @@ const Topbar = () => {
         <div className="w-full flex   items-center justify-between p-4 lg:p-5 gap-4">
           {/* Logo & Title */}
           <div className="flex items-center gap-2">
-            {/* <LiaHandScissorsSolid className="h-6 w-6 text-blue-400" /> */}
             <img
               src="/assets/rock.svg
               "
@@ -40,7 +39,6 @@ const Topbar = () => {
 
             <h1 className="text-lg sm:text-xl font-bold tracking-tight">
               Lizard poison Spock
-              {/* <span className="hidden sm:inline"> - Lizard poison Spock</span> */}
             </h1>
           </div>
 
@@ -48,9 +46,23 @@ const Topbar = () => {
           <div className="flex items-center gap-2  justify-end w-full md:w-auto">
             {isConnected ? (
               <div className="flex  items-center gap-4 justify-end">
-                {/* Balance Card */}
+                {chain?.name && chain?.id && (
+                  <div>
+                    <div className="flex justify-center items-center ">
+                      <span className="text-sm text-slate-100 bg-gray-800 px-4 py-2 rounded-md flex justify-center items-center gap-2">
+                        <div className="relative inline-flex">
+                          <div className="w-4 h-4 bg-red-500 rounded-full"></div>
+                          <div className="w-4 h-4 bg-red-500 rounded-full absolute top-0 left-0 animate-ping"></div>
+                          <div className="w-4 h-4 bg-red-500 rounded-full absolute top-0 left-0 animate-pulse"></div>
+                        </div>
+                        <div>
+                          {chain.name} (ID: {chain.id})
+                        </div>
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className="bg-slate-950  rounded-lg px-4 py-2 flex items-center gap-2 border border-slate-700/50">
-                  {/* <FaCoins className="w-4 h-4 text-yellow-500" /> */}
                   <span className="text-slate-300 text-sm sm:text-base">
                     {toHumanNumber(
                       balanceData.data?.value ?? 0n,
@@ -59,15 +71,12 @@ const Topbar = () => {
                     )}{" "}
                     {chain?.nativeCurrency.symbol}
                   </span>
-                  {/* Divider */}
-                  {/* <div className="h-4 w-px bg-slate-700 hidden sm:block" /> */}
-                  {/* Address Copy */}
+
                   <div
                     onClick={handleCopy}
                     className="cursor-pointer flex items-center gap-1 text-slate-300 hover:text-white transition relative bg px-2 rounded-md bg-[#0A193A]"
                     title={copied ? "Copied!" : "Click to copy"}
                   >
-                    {/* <FaRegCopy className="w-4 h-4 text-white opacity-90 hover:opacity-100 transition-opacity " /> */}
                     <span className="hidden md:inline">
                       {formatAddress(address)}
                     </span>
@@ -84,7 +93,6 @@ const Topbar = () => {
                 </button> */}
               </div>
             ) : (
-              // Connect Wallet Button
               <button
                 onClick={() => {
                   connect({ connector: connectors[0] });

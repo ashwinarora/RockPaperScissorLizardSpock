@@ -9,13 +9,13 @@ const moveImages: Record<Move, string> = {
   Rock: "/assets/rock2.svg",
   Paper: "/assets/paper.svg",
   Scissors: "/assets/scissors.svg",
-  Spock: "/assets/spock.png",
+  Spock: "/assets/spock.svg",
   Lizard: "/assets/lizard.svg",
 };
 
 const MakeMove = ({ move, setMove }: IMakeMoveProps) => {
   return (
-    <main className="container mx-auto mt-4 md:px-4 py-2">
+    <main className="container mx-auto mt-4 md:px-4 py-2 flex justify-center items-center">
       <div className=" rounded-3xl p-8 w-full max-w-4xl text-center">
         <h2 className="text-2xl sm:text-3xl font-bold -mt-10 mb-10 text-slate-100">
           Choose your move!

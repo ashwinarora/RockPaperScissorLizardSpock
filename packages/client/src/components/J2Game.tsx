@@ -33,9 +33,9 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
   };
 
   return (
-    <div className="w-8/12 mt-4 mx-auto text-xl ">
+    <div className="w-8/12 mt-4 mx-auto text-xl flex justify-center">
       {game.status === "waitingJ1Deployment" && (
-        <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8">
+        <div className="bg-[#0A183A] border border-[#089BFB]  shadow-lg  mx-auto w-full max-w-5xl rounded-xl p-28 flex flex-col items-center mb-8 pb-16">
           <div className="flex flex-col items-center mb-4 gap-16">
             <div>
               <img src="/assets/loading.gif" alt="" />
@@ -52,6 +52,15 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
       {game.status === "j1Deployed" && (
         <div className="bg-[#0A183A] rounded-3xl px-16 py-16 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col justify-center items-center">
           <MakeMove move={game.move} setMove={setMove} />
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
           <TxButton
             asyncTask={async () => {
               if (!game.move) return;
@@ -75,6 +84,7 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           >
             Let's Play
           </TxButton>
+
           <div className="mt-4 w-6/12">
             {game.move && (
               <p className=" flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
@@ -89,10 +99,19 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
       )}
 
       {game.status === "j2Played" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB]">
-          <p className="mt-4 w-6/12 m-auto flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 pb-2 bg-slate-950 text-white rounded-xl">
+        <div className="bg-[#0A183A] rounded-3xl p-32 mt-10 max-w-6xl text-center border border-[#2563EB]">
+          <p className="mt-4 w-[28rem] m-auto flex justify-center items-center disabled:cursor-not-allowed  px-4 pb-2 bg-slate-950 text-white rounded-xl">
             {game.move && <p className="mt-4">You selected: {game.move}</p>}
           </p>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB] mt-6">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
           <div className="flex  items-center justify-center ">
             <img
               className="w-24 h-24 text-center"
@@ -160,17 +179,24 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
       {game.status === "draw" && (
         <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
           <p>
-            {" "}
+            <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+              <p className="text-2xl">
+                Stake Amount:{" "}
+                <span className="text-[#089BFB] font-semibold">
+                  {game.stake}
+                </span>
+              </p>
+            </div>{" "}
             <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
           </p>
           <p className="text-2xl">It's a draw!</p>
         </div>
       )}
       {game.status === "j1Won" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 w-9/12 text-center border border-[#2563EB] flex flex-col gap-6">
           <div className="flex justify-center">
             {game.move && (
-              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
                 You selected:{" "}
                 <span className="text-[#089BFB]">{game.move}</span>
               </p>
@@ -183,14 +209,20 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           <div className="text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
             You Lost.
           </div>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold">0</span>
+            </p>
+          </div>{" "}
           {game.timedOut && <p>You TimedOut!</p>}
         </div>
       )}
       {game.status === "j2Won" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10  w-9/12 text-center border border-[#2563EB] flex flex-col gap-6">
           <div className="flex justify-center">
             {game.move && (
-              <p className="mt-4 w-6/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
                 You selected:{" "}
                 <span className="text-[#089BFB]">{game.move}</span>
               </p>
@@ -209,7 +241,19 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
               You Won!
             </span>
           </div>
-          <button className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto">
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold">
+                {2 * Number(game?.stake || 0)}
+              </span>
+            </p>
+          </div>{" "}
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
             Play Again!
           </button>
         </div>
