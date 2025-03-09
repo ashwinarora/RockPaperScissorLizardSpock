@@ -242,8 +242,34 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
         </div>
       )}
       {game.status === "j1Claimed" && (
-        <div className="italic">
-          <p>Game over! J2 timed out. You claimed your stake.</p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-6 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-4">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB] mt-8">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
+          <p className="text-[#089BFB] text-3xl">Game over! </p>
+          <p className=" text-3xl">Player 2 timed out</p>
+          <p className=" text-3xl"> You claimed your stake.</p>
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
+            Play Again!
+          </button>
         </div>
       )}
       {game.status === "j2Played" && (
@@ -316,11 +342,35 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
       )}
       {game.status === "draw" && (
         <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-9/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB] ">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
           <p>
             {" "}
             <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
           </p>
           <p className="text-2xl">It's a draw!</p>
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
+            Play Again!
+          </button>
         </div>
       )}
       {game.status === "j1Won" && (
@@ -383,7 +433,7 @@ const J1Game = ({ game, setGame }: IJ1GameProps) => {
           <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
             <p className="text-2xl">
               Stake Amount:{" "}
-              <span className="text-[#089BFB] font-semibold">0</span>
+              <span className="text-[#089BFB] font-semibold">{game.stake}</span>
             </p>
           </div>{" "}
           <button

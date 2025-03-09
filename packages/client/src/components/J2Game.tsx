@@ -121,8 +121,8 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           </div>
           <div className="flex flex-row gap-x-4 my-4 items-center justify-center">
             <p>
-              Waiting for <span className="text-[#089BFB]">Player 1</span> to
-              Solve
+              Waiting for{" "}
+              <span className="text-[#089BFB] text-2xl">Player 1</span> to Solve
             </p>
           </div>
 
@@ -170,26 +170,73 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
         </div>
       )}
       {game.status === "j2Claimed" && (
-        <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
-          <p className="text-2xl">
-            Game over! J1 timed out. You claimed your stake.
-          </p>
+        <div className="bg-[#0A183A] rounded-3xl p-20 mt-6 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-4">
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-2 w-full flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
+              </p>
+            )}
+          </div>
+          <div className="bg-[#0A183A] text-white px-6 py-1 mb-4 rounded-lg border border-[#089BFB] ">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>
+          <p className="text-[#089BFB] text-3xl">Game over! </p>
+          <p className=" text-3xl">Player 1 timed out</p>
+          <div className="relative flex justify-center items-center text-3xl font-bold text-white">
+            <img
+              src="/assets/won.svg"
+              alt="You Won!"
+              className="max-w-64 h-auto"
+            />
+            <span className=" absolute text-3xl font-bold text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]">
+              You claimed your stake.
+            </span>
+          </div>
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-4 px-2 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto "
+            onClick={() => (window.location.href = "/")}
+          >
+            Play Again!
+          </button>
         </div>
       )}
       {game.status === "draw" && (
         <div className="bg-[#0A183A] rounded-3xl p-20 mt-10 max-w-6xl text-center border border-[#2563EB] flex flex-col gap-6">
-          <p>
-            <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
-              <p className="text-2xl">
-                Stake Amount:{" "}
-                <span className="text-[#089BFB] font-semibold">
-                  {game.stake}
-                </span>
+          <div className="flex justify-center">
+            {game.move && (
+              <p className="mt-4 w-9/12 flex justify-center items-center disabled:cursor-not-allowed gap-x-4 px-4 py-2 bg-slate-950 text-white rounded-xl ">
+                You selected:{" "}
+                <span className="text-[#089BFB]">{game.move}</span>
               </p>
-            </div>{" "}
-            <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
-          </p>
+            )}
+          </div>
+          <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
+            <p className="text-2xl">
+              Stake Amount:{" "}
+              <span className="text-[#089BFB] font-semibold pr-4">
+                {game.stake}
+              </span>
+              {chain?.nativeCurrency.symbol}
+            </p>
+          </div>{" "}
+          <span className="text-[#089BFB] text-2xl">Game Over!</span>{" "}
           <p className="text-2xl">It's a draw!</p>
+          <button
+            type="button"
+            className="flex justify-center w-6/12 mt-8 px-5 py-1.5 bg-blue-600 rounded-md text-center text-white text-2xl cursor-pointer hover:bg-blue-700 disabled:cursor-not-allowed m-auto"
+            onClick={() => (window.location.href = "/")}
+          >
+            Play Again!
+          </button>
         </div>
       )}
       {game.status === "j1Won" && (
@@ -212,7 +259,7 @@ const J2Game = ({ game, setGame }: IJ2GameProps) => {
           <div className="bg-[#0A183A] text-white px-6 py-3 mb-4 rounded-lg border border-[#089BFB]">
             <p className="text-2xl">
               Stake Amount:{" "}
-              <span className="text-[#089BFB] font-semibold">0</span>
+              <span className="text-[#089BFB] font-semibold">{game.stake}</span>
             </p>
           </div>{" "}
           <button
