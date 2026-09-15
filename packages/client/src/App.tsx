@@ -2,6 +2,7 @@ import type { ServerToClientEvents } from "@rpsls/shared";
 import { useCallback, useEffect, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import { useAccount } from "wagmi";
+import Footer from "./components/Footer";
 import Topbar from "./components/Topbar";
 import { J1GameScreen } from "./components/screens/J1GameScreen";
 import { J2GameScreen } from "./components/screens/J2GameScreen";
@@ -245,9 +246,9 @@ const App = () => {
   }, [game]);
 
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <Topbar />
-      <main>
+      <main className="flex-1">
         {game.status === "reconnect" && <ReconnectScreen />}
         {game.status === "init" && <Lobby game={game} setGame={setGame} />}
         {game.isThisJ1 && game.status !== "init" && game.status !== "reconnect" && (
@@ -257,6 +258,7 @@ const App = () => {
           <J2GameScreen game={game} setGame={setGame} onPlayAgain={resetToLobby} />
         )}
       </main>
+      <Footer />
       <AppToastContainer />
     </div>
   );
