@@ -14,7 +14,11 @@ import cors from 'cors'
 
 const app = express();
 const httpServer = createServer(app);
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+const devOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
+const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
+const allowedOrigins = publicDomain
+  ? [...devOrigins, `https://${publicDomain}`]
+  : devOrigins;
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
     origin: allowedOrigins,
@@ -128,6 +132,7 @@ io.on("connection", (socket) => {
 
 });
 
-httpServer.listen(3000, () => {
-  console.log("server running at http://localhost:3000");
+const port = Number(process.env.PORT) || 3000;
+httpServer.listen(port, () => {
+  console.log(`server running on port ${port}`);
 });
