@@ -14,12 +14,13 @@ import cors from 'cors'
 
 const app = express();
 const httpServer = createServer(app);
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
   },
 });
-app.use(cors({ origin: "http://localhost:5173" }))
+app.use(cors({ origin: allowedOrigins }))
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientDistPath = join(__dirname, "../../client/dist");

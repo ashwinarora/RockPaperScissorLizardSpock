@@ -1,4 +1,7 @@
 {
+  "files": {
+    "ignore": ["dist/**", "node_modules/**"]
+  },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",

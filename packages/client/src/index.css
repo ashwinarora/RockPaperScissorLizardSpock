@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
 body {
-  @apply bg-slate-900 text-white;
+  @apply bg-bg text-ink font-body antialiased;
+  background-image: radial-gradient(120% 80% at 50% -10%, #23222a 0%, #141319 58%, #121118 100%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: #e8fe5a;
+  color: #141319;
+}
+
+*:focus-visible {
+  outline: 2px solid #e8fe5a;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Shimmer bar helper */
+.shimmer-bar {
+  background: linear-gradient(90deg, #201f26 0%, #2a2932 40%, #201f26 80%);
+  background-size: 480px 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
