@@ -1,7 +1,7 @@
 import { RPSLS } from "@rpsls/contract";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 import { decodeFunctionData } from "viem";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useBalance, useWriteContract } from "wagmi";
 import { getTransaction, waitForTransactionReceipt } from "wagmi/actions";
 import type { gameJ2, gameState } from "../../App";
 import useTimer from "../../hooks/useTimer";
@@ -23,7 +23,8 @@ interface Props {
 }
 
 export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
-  const { chain } = useAccount();
+  const { address, chain } = useAccount();
+  const { data: balance } = useBalance({ address });
   const { writeContractAsync } = useWriteContract();
   const { gameLastAction, gameTimeout } = useTimer(game.contractAddress);
   const [timeover, setTimeover] = useState(false);
@@ -91,6 +92,8 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
 
   // ────────── contract deployed, pick move + play ──────────
   if (game.status === "j1Deployed") {
+    const stakeWei = toRealNumber(game.stake, chain?.nativeCurrency.decimals);
+    const insufficient = balance ? balance.value < stakeWei : false;
     return (
       <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <header className="text-center">
@@ -108,8 +111,13 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
             size="sm"
           />
         </div>
+        {insufficient && (
+          <p className="text-[12.5px] text-warn-hi text-center">
+            Not enough {chain?.nativeCurrency.symbol ?? ""} — you have {balance?.formatted ?? "0"}.
+          </p>
+        )}
         <TxButton
-          disabled={!game.move}
+          disabled={!game.move || insufficient}
           asyncTask={async () => {
             if (!game.move || !game.gameId) return false;
             const tx = await writeContractAsync({
@@ -117,7 +125,7 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
               address: game.contractAddress as HexString,
               functionName: "play",
               args: [getMoveNumber(game.move)],
-              value: toRealNumber(game.stake, chain?.nativeCurrency.decimals),
+              value: stakeWei,
             });
             await waitForTransactionReceipt(config, { hash: tx });
             socket.emit("j2Played", { gameId: game.gameId });

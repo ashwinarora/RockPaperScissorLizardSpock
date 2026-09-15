@@ -54,6 +54,7 @@ io.on("connection", (socket) => {
   socket.on("reconnectGame", async (data) => {
     console.log("reconnect attempt")
     const success = await GamesManager.getInstance().handleReconnection({...data, socketId: socket.id})
+    if (success) socket.join(data.gameId.toString())
     socket.emit("reconnectGameSuccess", { success })
   })
 
@@ -62,6 +63,7 @@ io.on("connection", (socket) => {
     console.log("new game created", data)
     socket.join(gameId);
     GamesManager.getInstance().addGame({ gameId: gameId, j1SocketId: socket.id })
+    io.emit("lobbyChanged")
   })
 
   socket.on("joinGame", async (data) => {
@@ -70,15 +72,24 @@ io.on("connection", (socket) => {
     const roomSize = io.sockets.adapter.rooms.get(gameId)?.size || 0;
     console.log("roomSize", roomSize)
     if(!GamesManager.getInstance().gameExists(gameId)){
-      socket.emit("joinGameError", { 
-        error: "Game was Abandoned" 
+      socket.emit("joinGameError", {
+        error: "Game was abandoned"
       });
       await GamesManager.getInstance().markGameAsAbandoned(gameId)
       return;
     }
-    if(roomSize !== 1) {
-      socket.emit("joinGameError", { 
-        error: "Room is full" 
+    if(roomSize === 0) {
+      // Host is no longer connected — this game is dead.
+      socket.emit("joinGameError", {
+        error: "Host has left this game"
+      });
+      await GamesManager.getInstance().markGameAsAbandoned(gameId)
+      GamesManager.getInstance().gamesMap.delete(gameId)
+      return;
+    }
+    if(roomSize >= 2) {
+      socket.emit("joinGameError", {
+        error: "Room is full"
       });
       return;
     }
@@ -89,6 +100,7 @@ io.on("connection", (socket) => {
       gameId: gameId,
       j2Address: data.j2Address
     });
+    io.emit("lobbyChanged")
   })
 
   socket.on("contractDeployed", async (data) => {
@@ -117,6 +129,17 @@ io.on("connection", (socket) => {
     const gameSockets = GamesManager.getInstance().getSocketsOf(data.gameId);
     if(!gameSockets) return;
     socket.to(gameSockets.j1SocketId).emit("j2Played")
+  })
+
+  socket.on("cancelGame", async (data) => {
+    const gameId = data.gameId.toString()
+    const gameSockets = GamesManager.getInstance().getSocketsOf(gameId)
+    // Only the host may cancel a game (only J1 has staked nothing at this point).
+    if (gameSockets && gameSockets.j1SocketId === socket.id) {
+      await GamesManager.getInstance().markGameAsAbandoned(gameId)
+      GamesManager.getInstance().gamesMap.delete(gameId)
+      io.emit("lobbyChanged")
+    }
   })
 
   socket.on("gameOver", (data) => {

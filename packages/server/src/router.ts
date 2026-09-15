@@ -7,10 +7,18 @@ export const appRouter = router({
     const joinableGames = await GamesManager.getInstance().getJoinableGames();
     return joinableGames
   }),
+  activeGameForAddress: procedure
+    .input(z.object({ address: z.string() }))
+    .query(async ({ input }) => {
+      return await GamesManager.getInstance().getActiveGameForAddress(input.address)
+    }),
   createNewGame: procedure
     .input(z.object({
       chainId: z.string(),
-      stake: z.string(),
+      stake: z.string().refine(
+        (s) => /^\d+(\.\d+)?$/.test(s) && Number(s) > 0,
+        { message: "Stake must be a positive decimal number" }
+      ),
       j1Address: z.string()
     })).mutation(async ({ input }) => {
       const { chainId, stake, j1Address } = input

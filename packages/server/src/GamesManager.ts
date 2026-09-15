@@ -41,6 +41,37 @@ class GamesManager {
     }
   }
 
+  public async getActiveGameForAddress(address: string) {
+    // Return the most recent non-terminal game where this address is J1 or J2.
+    // Used to surface a "you have an in-progress game" recovery banner in the lobby
+    // when the client has lost its local state (cleared site data, different browser).
+    const activeStates = ["INIT", "J2JOINED", "DEPLOYED", "J2PLAYED"]
+    const game = await prisma.game.findFirst({
+      where: {
+        state: { in: activeStates as ("INIT" | "J2JOINED" | "DEPLOYED" | "J2PLAYED")[] },
+        OR: [
+          { j1Address: address },
+          { j2Address: address },
+        ],
+      },
+      orderBy: { updatedAt: "desc" },
+      select: {
+        id: true,
+        chainId: true,
+        stake: true,
+        contractAddress: true,
+        state: true,
+        j1Address: true,
+        j2Address: true,
+      },
+    })
+    if (!game) return null
+    return {
+      ...game,
+      isJ1: game.j1Address === address,
+    }
+  }
+
   public async getJoinableGames()  {
     const minutes = 10
     const joinableGames = await prisma.game.findMany({
@@ -57,7 +88,13 @@ class GamesManager {
         updatedAt: true,
       }
     })
-    return joinableGames
+    // Filter out zombies: games whose J1 socket is gone (refresh without reconnect,
+    // server restart, etc.). The DB row lingers as INIT but the room is empty,
+    // so any join attempt would fail with "no host". Hide them from the lobby.
+    return joinableGames.filter((g) => {
+      const inMap = this._gamesMap.get(g.id.toString())
+      return inMap && !inMap.isJ1Disconnected
+    })
   }
 
   public get gamesMap() {
@@ -101,15 +138,18 @@ class GamesManager {
         state: true,
       }
     })
-    if(["INIT", "J1TIMEDOUT", "J2TIMEDOUT", "J1WON", "J2WON", "DRAW"].includes(status?.state || "")) return false
+    // Reject only terminal states. INIT is a valid reconnect target for the host
+    // that refreshed while waiting for a challenger.
+    if(["J1TIMEDOUT", "J2TIMEDOUT", "J1WON", "J2WON", "DRAW", "ABANDONED", "MALACIOUSDEPLOYMENT"].includes(status?.state || "")) return false
+    if(!status) return false
     const game = this._gamesMap.get(gameId)
     if(!game) return false
-    if(isPlayer1 && game.isJ1Disconnected) {
+    if(isPlayer1) {
       game.j1SocketId = socketId
       game.isJ1Disconnected = false
       return true
     }
-    if(!isPlayer1 && game.isJ2Disconnected) {
+    if(!isPlayer1 && game.j2SocketId) {
       game.j2SocketId = socketId
       game.isJ2Disconnected = false
       return true

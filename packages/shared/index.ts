@@ -26,6 +26,7 @@ export interface ServerToClientEvents {
   reconnectGameSuccess: (data: {
     success: boolean;
   }) => void;
+  lobbyChanged: () => void;
 
 }
 
@@ -63,5 +64,8 @@ export interface ClientToServerEvents {
     gameId: string;
     playerAddress: string;
     isPlayer1: boolean;
+  }) => void;
+  cancelGame: (data: {
+    gameId: string;
   }) => void;
 }

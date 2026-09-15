@@ -95,7 +95,9 @@ const App = () => {
   }, [clearStorage]);
 
   useEffect(() => {
-    if (["preJoinChecks", "j2waiting", "draw", "j1Won", "j2Won"].includes(game.status)) return clearStorage();
+    // Clear only terminal / pre-persistence states. j2waiting persists so the
+    // host can reconnect after a refresh while waiting for a challenger.
+    if (["preJoinChecks", "draw", "j1Won", "j2Won"].includes(game.status)) return clearStorage();
     if (game.status === "reconnect") return;
     const dataToStore = JSON.stringify({ ...game });
     localStorage.setItem(storageKey, dataToStore);

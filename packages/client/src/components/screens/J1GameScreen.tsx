@@ -95,7 +95,14 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
             </>
           }
           actions={
-            <button type="button" onClick={onPlayAgain} className="text-ink-faint hover:text-ink text-[13px] py-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (game.gameId) socket.emit("cancelGame", { gameId: game.gameId });
+                onPlayAgain();
+              }}
+              className="text-ink-faint hover:text-ink text-[13px] py-2"
+            >
               Cancel
             </button>
           }

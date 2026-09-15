@@ -1,10 +1,11 @@
 import { useAppKit } from "@reown/appkit/react";
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useAccount, useSwitchChain } from "wagmi";
+import { useAccount, useBalance, useSwitchChain } from "wagmi";
 import type { gameJ2, gameState } from "../../App";
 import { SUPPORTED_CHAINS, type SupportedChainId, isSupported } from "../../lib/chains";
 import { cn } from "../../lib/cn";
+import { doubleAmount, toRealNumber } from "../../lib/game";
 import { socket } from "../../socket";
 import { trpc } from "../../trpc";
 import { GameCard } from "../domain/GameCard";
@@ -22,9 +23,14 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
   const { address, chain, isConnected } = useAccount();
   const { switchChain } = useSwitchChain();
   const { open } = useAppKit();
+  const { data: balance } = useBalance({ address });
   const { data: joinableGames, refetch } = trpc.joinableGames.useQuery(undefined, {
     refetchInterval: 6000,
   });
+  const { data: activeGame } = trpc.activeGameForAddress.useQuery(
+    { address: address ?? "" },
+    { enabled: !!address && game.status === "init", refetchOnWindowFocus: false },
+  );
 
   const [filter, setFilter] = useState<FilterKey>(() => (isConnected ? "wallet" : "all"));
   useEffect(() => {
@@ -38,6 +44,16 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
   useEffect(() => {
     refetch();
   }, [game, refetch]);
+
+  useEffect(() => {
+    const handler = () => {
+      refetch();
+    };
+    socket.on("lobbyChanged", handler);
+    return () => {
+      socket.off("lobbyChanged", handler);
+    };
+  }, [refetch]);
 
   const activeFilterChainId = useMemo(() => {
     if (filter === "wallet") return chain?.id;
@@ -73,8 +89,20 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
   const [stake, setStake] = useState("");
   const createGame = trpc.createNewGame.useMutation();
 
-  const potPreview = stake ? (Number(stake) * 2).toString() : "0";
-  const createDisabled = !isConnected || !chainSupported || !stake || createGame.isPending;
+  const decimals = chain?.nativeCurrency.decimals ?? 18;
+  const stakeIsValidDecimal = /^\d+(\.\d+)?$/.test(stake);
+  let stakeWei: bigint | null = null;
+  if (stakeIsValidDecimal) {
+    try {
+      stakeWei = toRealNumber(stake, decimals);
+    } catch {
+      stakeWei = null;
+    }
+  }
+  const stakePositive = stakeWei !== null && stakeWei > 0n;
+  const stakeOverBalance = stakeWei !== null && balance ? stakeWei > balance.value : false;
+  const potPreview = stakePositive ? doubleAmount(stake) : "0";
+  const createDisabled = !isConnected || !chainSupported || !stakePositive || stakeOverBalance || createGame.isPending;
   const createLabel = !chainSupported
     ? "Unsupported chain"
     : createGame.isPending
@@ -84,10 +112,15 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
     ? "Connect your wallet to create a game."
     : !chainSupported
       ? "Switch to a supported chain to create a game."
-      : "Nothing leaves your wallet until your opponent joins and you commit your move.";
+      : stake && !stakePositive
+        ? "Stake must be greater than 0."
+        : stakeOverBalance
+          ? `Not enough ${chain?.nativeCurrency.symbol ?? ""} — you have ${balance?.formatted ?? "0"}.`
+          : "Nothing leaves your wallet until your opponent joins and you commit your move.";
+  const hintIsError = isConnected && (!chainSupported || (!!stake && !stakePositive) || stakeOverBalance);
 
   const handleCreate = async () => {
-    if (!chain?.id || !address) return;
+    if (!chain?.id || !address || !stakePositive || stakeOverBalance) return;
     const result = await createGame.mutateAsync({
       chainId: chain.id.toString(),
       stake,
@@ -104,6 +137,21 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
 
   return (
     <div className="mx-auto flex max-w-[760px] flex-col gap-8 px-4 pb-32 pt-6">
+      {activeGame?.contractAddress && (
+        <div className="rounded-xl4 border border-[rgba(255,196,107,0.35)] bg-[rgba(255,196,107,0.07)] p-4 text-[13px] text-warn-hi flex items-start gap-3">
+          <AlertTriangle size={16} className="mt-0.5 shrink-0 text-warn" />
+          <div className="flex-1 flex flex-col gap-1">
+            <div className="font-semibold text-ink">You have an in-progress game (#{activeGame.id})</div>
+            <div className="text-ink-soft">
+              Contract: <span className="font-mono text-ink">{activeGame.contractAddress}</span>
+            </div>
+            <div className="text-ink-soft text-[12px]">
+              If this browser doesn't have the secret to reveal, you may still be able to reclaim your stake via
+              j1Timeout after 5 minutes of inactivity by calling the contract directly (e.g. from a block explorer).
+            </div>
+          </div>
+        </div>
+      )}
       <section className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-[22px] font-bold text-ink">Create a game</h2>
@@ -112,14 +160,7 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
               <span>Creating on</span>
               <button
                 type="button"
-                onClick={() => {
-                  // Focused-ring switcher target — open wallet chip menu is upstream, so
-                  // for now cycle to next supported chain if user clicks the chip; the
-                  // Wallet menu is the canonical switcher, but this is a shortcut.
-                  const idx = SUPPORTED_CHAINS.findIndex((c) => c.id === chain.id);
-                  const next = SUPPORTED_CHAINS[(idx + 1) % SUPPORTED_CHAINS.length];
-                  switchChain({ chainId: next.id });
-                }}
+                onClick={() => open({ view: "Networks" })}
                 className="inline-flex items-center gap-1.5 rounded-full border border-hairline-strong bg-surface-2 px-2 py-0.5 font-mono text-[11px] text-ink-soft hover:border-[rgba(232,254,90,0.45)] hover:text-ink"
               >
                 <ChainDot active={chainSupported} />
@@ -134,14 +175,16 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
             <span className="text-[12px] uppercase tracking-widest text-ink-faint">Stake</span>
             <div className="flex items-center gap-2 rounded-xl2 border border-hairline-strong bg-surface-inset px-3 py-2.5 focus-within:border-[rgba(232,254,90,0.45)]">
               <input
-                type="number"
+                type="text"
                 inputMode="decimal"
-                min="0"
-                step="any"
+                pattern="[0-9]*\.?[0-9]*"
                 value={stake}
-                onChange={(e) => setStake(e.target.value)}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === "" || /^\d*\.?\d*$/.test(v)) setStake(v);
+                }}
                 placeholder="0.001"
-                className="flex-1 bg-transparent font-mono text-[18px] text-ink placeholder:text-ink-deep focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="flex-1 bg-transparent font-mono text-[18px] text-ink placeholder:text-ink-deep focus:outline-none"
               />
               <span className="font-mono text-[13px] text-ink-faint">{chain?.nativeCurrency.symbol ?? ""}</span>
             </div>
@@ -155,9 +198,7 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
           >
             {isConnected ? createLabel : "Connect wallet to create"}
           </Button>
-          <p className={cn("text-[12.5px]", !isConnected || chainSupported ? "text-ink-faint" : "text-warn-hi")}>
-            {createHint}
-          </p>
+          <p className={cn("text-[12.5px]", hintIsError ? "text-warn-hi" : "text-ink-faint")}>{createHint}</p>
         </div>
       </section>
 
