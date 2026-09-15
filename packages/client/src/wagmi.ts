@@ -1,6 +1,6 @@
-import { http, createConfig } from 'wagmi'
-import { mainnet, sepolia, bscTestnet, bsc, arbitrum, arbitrumSepolia, polygonMumbai, polygon } from 'wagmi/chains'
-import { metaMask } from 'wagmi/connectors'
+import { http, createConfig } from "wagmi";
+import { arbitrum, arbitrumSepolia, bsc, bscTestnet, mainnet, polygon, polygonMumbai, sepolia } from "wagmi/chains";
+import { metaMask } from "wagmi/connectors";
 
 export const config = createConfig({
   chains: [mainnet, sepolia, bscTestnet, bsc, arbitrum, arbitrumSepolia, polygonMumbai, polygon],
@@ -23,10 +23,10 @@ export const config = createConfig({
     [polygonMumbai.id]: http(),
     [polygon.id]: http(),
   },
-})
+});
 
-declare module 'wagmi' {
+declare module "wagmi" {
   interface Register {
-    config: typeof config
+    config: typeof config;
   }
 }

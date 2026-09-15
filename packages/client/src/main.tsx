@@ -16,24 +16,23 @@ globalThis.Buffer = Buffer;
 
 const queryClient = new QueryClient();
 
-export const url = 
-    import.meta.env.MODE  === 'production'
-    ? "trpc"
-    : 'http://localhost:3000/trpc';
+export const url = import.meta.env.MODE === "production" ? "trpc" : "http://localhost:3000/trpc";
 
 const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: url,
       headers: {
-        'Content-Type': 'application/json', // Explicitly set the content type
+        "Content-Type": "application/json", // Explicitly set the content type
       },
     }),
   ],
 });
 
+const rootEl = document.getElementById("root");
+if (!rootEl) throw new Error("Missing #root element");
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+ReactDOM.createRoot(rootEl).render(
   <React.StrictMode>
     <WagmiProvider config={config}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>

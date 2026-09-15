@@ -12,3 +12,9 @@
 #!.yarn/cache
 .pnp.*
 node_modules
+
+.env
+.env.local
+
+.screenshots/
+

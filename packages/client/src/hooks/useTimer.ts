@@ -1,6 +1,6 @@
-import { useReadContracts } from 'wagmi';
-import { HexString } from './utils';
 import { RPSLS } from "@rpsls/contract";
+import { useReadContracts } from "wagmi";
+import type { HexString } from "../lib/game";
 
 const useTimer = (contractAddress: string | undefined) => {
   const { data: contractData } = useReadContracts({
@@ -18,8 +18,7 @@ const useTimer = (contractAddress: string | undefined) => {
     ],
   });
   const [gameTimeout, gameLastAction] = contractData || [];
+  return { gameTimeout, gameLastAction };
+};
 
-  return {gameTimeout, gameLastAction}
-}
-
-export default useTimer
+export default useTimer;
