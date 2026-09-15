@@ -33,6 +33,7 @@ export const WalletChip = () => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        title={chainSupported ? chain?.name : "Unsupported network"}
         className={cn(
           "inline-flex items-center gap-2 rounded-full border py-1.5 pl-3 pr-2 text-[13px] transition-colors duration-150",
           "bg-surface-2",
@@ -42,10 +43,6 @@ export const WalletChip = () => {
         )}
       >
         <ChainDot active={chainSupported} />
-        <span className="font-mono text-ink-soft text-[12px] hidden sm:inline">
-          {chainSupported ? chain?.name : "Unsupported"}
-        </span>
-        <span className="h-3 w-px bg-hairline-strong hidden sm:inline-block" />
         <span className="font-mono text-ink text-[12.5px]">{shortAddress(address)}</span>
         <span className="h-3 w-px bg-hairline-strong" />
         <span className="font-mono text-ink-soft text-[12px]">

@@ -1,9 +1,11 @@
 import type { ServerToClientEvents } from "@rpsls/shared";
 import { useCallback, useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
 import { Bounce, toast } from "react-toastify";
 import { useAccount } from "wagmi";
 import Footer from "./components/Footer";
 import Topbar from "./components/Topbar";
+import { HowToPlayScreen } from "./components/screens/HowToPlayScreen";
 import { J1GameScreen } from "./components/screens/J1GameScreen";
 import { J2GameScreen } from "./components/screens/J2GameScreen";
 import { Lobby } from "./components/screens/Lobby";
@@ -249,14 +251,24 @@ const App = () => {
     <div className="flex min-h-screen flex-col">
       <Topbar />
       <main className="flex-1">
-        {game.status === "reconnect" && <ReconnectScreen />}
-        {game.status === "init" && <Lobby game={game} setGame={setGame} />}
-        {game.isThisJ1 && game.status !== "init" && game.status !== "reconnect" && (
-          <J1GameScreen game={game} setGame={setGame} onPlayAgain={resetToLobby} />
-        )}
-        {!game.isThisJ1 && game.status !== "preJoinChecks" && game.status !== "reconnect" && (
-          <J2GameScreen game={game} setGame={setGame} onPlayAgain={resetToLobby} />
-        )}
+        <Routes>
+          <Route path="/how-to-play" element={<HowToPlayScreen />} />
+          <Route
+            path="*"
+            element={
+              <>
+                {game.status === "reconnect" && <ReconnectScreen />}
+                {game.status === "init" && <Lobby game={game} setGame={setGame} />}
+                {game.isThisJ1 && game.status !== "init" && game.status !== "reconnect" && (
+                  <J1GameScreen game={game} setGame={setGame} onPlayAgain={resetToLobby} />
+                )}
+                {!game.isThisJ1 && game.status !== "preJoinChecks" && game.status !== "reconnect" && (
+                  <J2GameScreen game={game} setGame={setGame} onPlayAgain={resetToLobby} />
+                )}
+              </>
+            }
+          />
+        </Routes>
       </main>
       <Footer />
       <AppToastContainer />
