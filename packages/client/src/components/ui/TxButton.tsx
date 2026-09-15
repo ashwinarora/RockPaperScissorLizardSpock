@@ -29,11 +29,11 @@ const stateLabelFallback: Record<Status, string> = {
 };
 
 const stateHint: Record<Status, string> = {
-  ready: "MetaMask will open — review the amount before signing.",
-  loading: "MetaMask will open — review the amount before signing.",
+  ready: "Your wallet will open — review the amount before signing.",
+  loading: "Your wallet will open — review the amount before signing.",
   pending: "Waiting on the network. This can take a moment.",
   success: "Done — moving on.",
-  error: "You rejected the request in MetaMask. Nothing was staked.",
+  error: "You rejected the request in your wallet. Nothing was staked.",
 };
 
 const Spinner = () => (

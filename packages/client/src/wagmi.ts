@@ -1,29 +1,25 @@
-import { http, createConfig } from "wagmi";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 import { arbitrum, arbitrumSepolia, bsc, bscTestnet, mainnet, polygon, polygonMumbai, sepolia } from "wagmi/chains";
-import { metaMask } from "wagmi/connectors";
 
-export const config = createConfig({
-  chains: [mainnet, sepolia, bscTestnet, bsc, arbitrum, arbitrumSepolia, polygonMumbai, polygon],
-  connectors: [
-    metaMask({
-      dappMetadata: {
-        name: "RPSLS - AshwinArora",
-        url: "",
-        iconUrl: "",
-      },
-    }),
-  ],
-  transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
-    [bscTestnet.id]: http(),
-    [bsc.id]: http(),
-    [arbitrum.id]: http(),
-    [arbitrumSepolia.id]: http(),
-    [polygonMumbai.id]: http(),
-    [polygon.id]: http(),
-  },
+const rawProjectId = import.meta.env.VITE_REOWN_PROJECT_ID as string | undefined;
+if (!rawProjectId) {
+  throw new Error(
+    "VITE_REOWN_PROJECT_ID is not set. Get one at https://dashboard.reown.com and add it to packages/client/.env.local",
+  );
+}
+const projectId: string = rawProjectId;
+
+export const networks = [mainnet, sepolia, bscTestnet, bsc, arbitrum, arbitrumSepolia, polygonMumbai, polygon] as const;
+
+export const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  networks: [...networks],
+  ssr: false,
 });
+
+export const config = wagmiAdapter.wagmiConfig;
+
+export { projectId };
 
 declare module "wagmi" {
   interface Register {

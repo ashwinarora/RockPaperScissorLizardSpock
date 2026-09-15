@@ -10,10 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@reown/appkit": "^1.8.23",
+    "@reown/appkit-adapter-wagmi": "^1.8.23",
     "@rpsls/server": "workspace:^",
     "@tanstack/react-query": "^5.62.15",
     "@trpc/client": "^11.0.0-rc.682",
     "@trpc/react-query": "^11.0.0-rc.682",
+    "@wagmi/connectors": "6.2.0",
+    "@wagmi/core": "^2.16.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
     "framer-motion": "^13.3.0",
@@ -23,8 +27,8 @@
     "react-toastify": "^11.0.2",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.7.0",
-    "viem": "latest",
-    "wagmi": "latest"
+    "viem": "^2.45.0",
+    "wagmi": "^2.19.5"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.0",
