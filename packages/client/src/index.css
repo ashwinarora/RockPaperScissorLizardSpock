@@ -10,13 +10,13 @@ body,
 
 body {
   @apply bg-bg text-ink font-body antialiased;
-  background-image: radial-gradient(120% 80% at 50% -10%, #17161c 0%, #0a090c 58%, #08070a 100%);
+  background-image: radial-gradient(120% 80% at 50% -10%, #23222a 0%, #141319 58%, #121118 100%);
   background-attachment: fixed;
 }
 
 ::selection {
   background: #e8fe5a;
-  color: #0a090c;
+  color: #141319;
 }
 
 *:focus-visible {
@@ -27,7 +27,7 @@ body {
 
 /* Shimmer bar helper */
 .shimmer-bar {
-  background: linear-gradient(90deg, #17161b 0%, #201f26 40%, #17161b 80%);
+  background: linear-gradient(90deg, #201f26 0%, #2a2932 40%, #201f26 80%);
   background-size: 480px 100%;
 }
 

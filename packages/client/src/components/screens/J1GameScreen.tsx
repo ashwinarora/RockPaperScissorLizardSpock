@@ -76,7 +76,7 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
   // ────────── waiting for j2 ──────────
   if (game.status === "j2waiting") {
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6">
         <WaitPanel
           title="Waiting for a challenger…"
           body={`Send the link to a friend, or sit tight — anyone on ${chain?.name ?? "this chain"} can join from the lobby. Nothing is staked yet.`}
@@ -107,7 +107,7 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
   // ────────── j2 joined, pick move + deploy ──────────
   if (game.status === "j2joined") {
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6 flex flex-col gap-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <header className="text-center">
           <h2 className="font-display text-[24px] font-bold">Your move</h2>
           <p className="text-ink-soft text-[14px] mt-1">
@@ -162,7 +162,7 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
       { key: "reveal", title: "Reveal your move", sub: "You'll sign one more time", state: "next" },
     ];
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6 flex flex-col gap-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <WaitPanel
           title="Waiting for your opponent to play"
           body="They see the pot and are picking their move. This usually takes a few seconds."
@@ -230,7 +230,7 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
   // ────────── j2 played, reveal ──────────
   if (game.status === "j2Played") {
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6 flex flex-col gap-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <header className="text-center">
           <h2 className="font-display text-[24px] font-bold">Reveal your move</h2>
           <p className="text-ink-soft text-[14px] mt-1">
@@ -297,7 +297,7 @@ export const J1GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
     const displayStake = variant === "won" || variant === "timeoutWon" ? doubleAmount(game.stake) : game.stake;
 
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6">
         <ResultPanel
           variant={variant}
           myMove={game.move}

@@ -61,7 +61,7 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
   // ────────── waiting for J1 to deploy ──────────
   if (game.status === "waitingJ1Deployment") {
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6">
         <WaitPanel
           title="Waiting for the host…"
           body="They're committing their move and deploying the game. This usually takes a few seconds — up to a minute if the network is busy."
@@ -92,7 +92,7 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
   // ────────── contract deployed, pick move + play ──────────
   if (game.status === "j1Deployed") {
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6 flex flex-col gap-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <header className="text-center">
           <h2 className="font-display text-[24px] font-bold">Your move</h2>
           <p className="text-ink-soft text-[14px] mt-1">
@@ -139,7 +139,7 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
     ];
 
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6 flex flex-col gap-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6 flex flex-col gap-6">
         <WaitPanel
           title="Waiting for the host to reveal…"
           body="They'll sign once more and the contract settles automatically."
@@ -224,7 +224,7 @@ export const J2GameScreen = ({ game, setGame, onPlayAgain }: Props) => {
     const canRevealTheirs = variant === "won" || variant === "lost" || variant === "draw";
 
     return (
-      <div className="mx-auto max-w-[620px] px-4 py-6">
+      <div className="mx-auto max-w-[760px] px-4 py-6">
         <ResultPanel
           variant={variant}
           myMove={game.move}

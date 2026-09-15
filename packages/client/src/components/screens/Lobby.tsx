@@ -103,7 +103,7 @@ export const Lobby = ({ game, setGame }: LobbyProps) => {
   };
 
   return (
-    <div className="mx-auto flex max-w-[620px] flex-col gap-8 px-4 pb-32 pt-6">
+    <div className="mx-auto flex max-w-[760px] flex-col gap-8 px-4 pb-32 pt-6">
       <section className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
           <h2 className="font-display text-[22px] font-bold text-ink">Create a game</h2>

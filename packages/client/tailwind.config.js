@@ -4,19 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#0A090C",
+        bg: "#141319",
         surface: {
-          DEFAULT: "#121115",
-          2: "#15141A",
-          3: "#17161B",
-          hover: "#191820",
-          inset: "#0D0C10",
-          clock: "#0E0D11",
+          DEFAULT: "#1B1A21",
+          2: "#1E1D24",
+          3: "#201F26",
+          hover: "#242329",
+          inset: "#17161C",
+          clock: "#18171E",
         },
         hairline: {
-          DEFAULT: "rgba(255,255,255,0.08)",
-          soft: "rgba(255,255,255,0.06)",
-          strong: "rgba(255,255,255,0.12)",
+          DEFAULT: "rgba(255,255,255,0.10)",
+          soft: "rgba(255,255,255,0.07)",
+          strong: "rgba(255,255,255,0.14)",
         },
         accent: {
           DEFAULT: "#E8FE5A",
@@ -24,11 +24,11 @@ export default {
           link: "#F3FF9B",
         },
         ink: {
-          DEFAULT: "#F5F2EC",
-          mute: "#D6D2DE",
-          soft: "#B9B5C2",
-          faint: "#8B8794",
-          deep: "#736F7D",
+          DEFAULT: "#F7F5F0",
+          mute: "#E5E1EC",
+          soft: "#CCC7D5",
+          faint: "#A8A3B1",
+          deep: "#8F8B98",
         },
         loss: {
           DEFAULT: "#FF8A7A",

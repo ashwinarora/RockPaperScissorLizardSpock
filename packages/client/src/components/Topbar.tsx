@@ -9,7 +9,7 @@ const Topbar = () => {
   const { open } = useAppKit();
 
   return (
-    <header className="mx-auto flex max-w-[720px] items-center justify-between px-4 py-5">
+    <header className="mx-auto flex w-full max-w-[760px] items-center justify-between px-4 py-5">
       <a href="/" className="focus:outline-none">
         <Wordmark size="sm" />
       </a>
