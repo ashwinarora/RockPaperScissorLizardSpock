@@ -7,7 +7,7 @@
     "cors": "^2.8.5",
     "ethers": "^6.13.4",
     "express": "^4.21.2",
-    "socket.io": "^4.8.1",
+    "socket.io": "^4.8.3",
     "zod": "^3.24.1"
   },
   "scripts": {
