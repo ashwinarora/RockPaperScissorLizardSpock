@@ -34,12 +34,16 @@ app.use(express.static(clientDistPath));
 app.use('/trpc',
   createExpressMiddleware({
     router: appRouter,
-    createContext: () => ({}), 
+    createContext: () => ({}),
     onError: ({ error }) => {
       console.error('tRPC error:', error);
     }
   })
 )
+
+app.get(/^(?!\/trpc|\/socket\.io).*/, (_req, res) => {
+  res.sendFile(join(clientDistPath, "index.html"));
+});
 
 const bscProvider = new JsonRpcProvider("https://data-seed-prebsc-1-s2.bnbchain.org:8545");
 
