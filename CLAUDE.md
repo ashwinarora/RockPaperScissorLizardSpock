@@ -23,6 +23,7 @@ yarn client:dev                 # vite dev server on :5173 (server CORS is hard-
 yarn client:build               # tsc + vite build
 yarn server:build               # prisma generate + tsc
 yarn start                      # compileContracts && client:build && server:build && server:start (prod-style)
+yarn check:no-contact           # compileContracts, build the client with NO_CONTACT=true, scan dist/ (see "No-contact mode")
 ```
 
 Package-scoped:
@@ -77,3 +78,18 @@ Single source of truth for the socket protocol. Both client and server import `C
 - Server CORS and the client's dev URL are hard-coded to `http://localhost:5173` / `http://localhost:3000`. Change both if you move ports.
 - The on-chain bytecode check only runs for chainId `97` (BSC testnet). If you add another chain, update `index.ts` and regenerate `RPSLS.ts` per-chain if compiler settings differ.
 - `GamesManager` state lives in process memory — restarting the server drops all active socket routing (persisted DB state survives, but in-flight games can't reconnect).
+
+## No-contact mode
+
+The same branch builds two deployments. `NO_CONTACT=true` in the environment is the no-contact one (`showcase.lizardpoisonspock.com`): a visitor has no way to contact the owner or find his contact details, and every link to one of his sites goes to that site's own `showcase.` deployment. Unset, or any other value, is the normal site and must behave exactly as before. README "No-contact mode" has the full description.
+
+- The flag lives in one module per runtime: `packages/client/src/lib/noContact.ts` (`NO_CONTACT`, `PORTFOLIO_URL`; fixed at build time by the `define` in `packages/client/vite.config.ts`) and `packages/server/src/noContact.ts` (`NO_CONTACT`, `noIndex`; read from `process.env` at start). `NO_CONTACT` is the only variable; do not add a `VITE_` twin.
+- Both URLs of every link to one of the owner's sites are in `packages/client/site.config.ts`. `vite.config.ts` injects only the selected one. Nothing in `src/` imports `site.config.ts`.
+- Today the footer credit link (`components/Footer.tsx`) is the only such link, and no-contact mode also adds `noindex` (meta tag from `vite.config.ts`, `X-Robots-Tag` header from the server).
+
+Rules when changing the client or server:
+
+- Never hard-code a link to one of the owner's sites (`ashwinarora.com`, `ashdex.app`, `lizardpoisonspock.com`, `hltools.tech`, `ethtactoe.com`, `socialnetwrk.in`, `ethhousie.com`). Add both URLs to `site.config.ts` and export the selected one from `noContact.ts`.
+- Anything that leads to the owner (email, social profile, handle, his GitHub, calendar link, meta tags such as `twitter:creator`) must be absent from a no-contact build and from server responses. Gate it in the JSX with `{!NO_CONTACT && …}` so the bundler removes it. Hiding it with CSS or behind a runtime check is not enough.
+- Run `yarn check:no-contact` after any change to the client, its dependencies or `index.html`. There is no CI in this repo, so nothing else runs it. It leaves a no-contact build in `packages/client/dist`.
+- The allowlist in `scripts/check-no-contact.mjs` is for strings inside third-party wallet libraries only. Each entry names the pattern, the chunk and the exact surrounding library code, with a one-line reason. Never add an entry for this repo's own code, never excuse a whole file, and delete entries the script reports as unused.
