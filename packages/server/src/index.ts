@@ -10,9 +10,12 @@ import GamesManager from "./GamesManager.js";
 import { createExpressMiddleware } from '@trpc/server/adapters/express';
 import { appRouter } from "./router.js";
 import cors from 'cors'
+import { NO_CONTACT, noIndex } from "./noContact.js";
 
 
 const app = express();
+// First, so it covers the static files, /trpc and the index.html catch-all alike.
+if (NO_CONTACT) app.use(noIndex);
 const httpServer = createServer(app);
 const devOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175"];
 const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;

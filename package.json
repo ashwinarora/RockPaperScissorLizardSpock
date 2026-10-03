@@ -8,7 +8,8 @@
     "server:dev": "yarn workspace @rpsls/server dev",
     "server:start": "yarn workspace @rpsls/server start",
     "server:build": "yarn workspace @rpsls/server build",
-    "start": "yarn compileContracts && yarn client:build && yarn server:build && yarn server:start"
+    "start": "yarn compileContracts && yarn client:build && yarn server:build && yarn server:start",
+    "check:no-contact": "yarn compileContracts && node scripts/check-no-contact.mjs"
   },
   "workspaces": [
     "packages/*"
